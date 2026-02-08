@@ -1,7 +1,7 @@
-package cityrescue;
+package java.cityrescue;
 
-import cityrescue.enums.*;
-import cityrescue.exceptions.*;
+import java.cityrescue.enums.*;
+import java.cityrescue.exceptions.*;
 
 /**
  * CityRescueImpl (Starter)
@@ -12,22 +12,61 @@ import cityrescue.exceptions.*;
 public class CityRescueImpl implements CityRescue {
 
     // TODO: add fields (map, arrays for stations/units/incidents, counters, tick, etc.)
-
+    int width;
+    int height;
+    int[][] CityMap;
+    
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
         // TODO: implement
+        
+        // - Data validation - 
+        if (width > 0) {
+           this.width = width; 
+        } else {
+            throw new InvalidGridException("Invalid Size: width has to be greater than 0");
+        }
+        
+        if (height > 0) {
+           this.height = height; 
+        } else {
+            throw new InvalidGridException("Invalid Size: height has to be greater than 0");
+        }
+        
+        CityMap = new int[width][height];
+
+        for (int i = 0; i < width; i++) {
+
+            for (int j = 0; j < height; j++) {
+                // 0 is clear, 1 is blocked
+                CityMap[i][j] = 0;
+                
+            }
+        }
+        
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public int[] getGridSize() {
         // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        int[] dimensions = new int[1];
+        dimensions[0] = this.width;
+        dimensions[1] = this.height;
+        return dimensions;
     }
 
     @Override
     public void addObstacle(int x, int y) throws InvalidLocationException {
         // TODO: implement
+        
+        // - Data validation - 
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+            throw new InvalidLocationException("Trying to place an obstacle out of bounds");
+        }
+        
+        this.CityMap[x][y] = 1;
+        
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
