@@ -71,4 +71,10 @@ public class CityMap
         // 1 for a blocked cell
         this.Map[x][y] = 1;
     }
+    
+    public void removeObstacle(int x, int y) 
+    {
+        // 1 for a blocked cell
+        this.Map[x][y] = 0;
+    }
 }

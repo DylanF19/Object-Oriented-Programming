@@ -16,19 +16,16 @@ public class Station
     public String name;
     public int coordX;
     public int coordY;
-    public int parkingCapacity;
-    // A cheap easy way to get the IDs they want.
-    // It never goes down so the name isn't that accurate
-    // Shame I couldn't care less.
+    public int parkingCapacity = 2; //This int is abitrary
+    public int numberOfOwnedUnits = 0;
+    
     public static int numberOfStations = 0;
     
-    public HashMap<Integer, List<Station>> hashMap = new HashMap<Integer, List<Station>>();
     /**
      * Constructor for objects of class Station
      * Params of Station:
      *      x coordinate
      *      y coordinate
-     *      Station name
      *      Station ID
      *      Station Parking Capacity
      */
@@ -38,16 +35,28 @@ public class Station
         this.coordX = x;
         this.coordY = y;
         this.name = name;
-        this.parkingCapacity = 2; //This int is abitrary
+        
         // increment ID number
-        this.stationId = ++numberOfStations;
+        this.stationId = numberOfStations;
+        numberOfStations++;
     }
     
-    public void createStation(String name, int x, int y)
+    public static int getNumberOfStations()
     {
         //TODO; find a way to group Station objects together
         // so that individual objects can be referenced independently
         // through methods.
+        return numberOfStations;
+    }
+    
+    public int getNumberOfOwnedUnits() 
+    {
+        return this.numberOfOwnedUnits;
+    }
+    
+    public void setMaxCapacity(int maxUnits) 
+    {
+        this.parkingCapacity = maxUnits;
     }
 }
 

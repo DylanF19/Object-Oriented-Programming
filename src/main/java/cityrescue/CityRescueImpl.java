@@ -4,6 +4,10 @@ import java.cityrescue.enums.*;
 import java.cityrescue.exceptions.*;
 import java.cityrescue.Station;
 import java.cityrescue.CityMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * CityRescueImpl (Starter)
@@ -16,6 +20,7 @@ public class CityRescueImpl implements CityRescue {
     // TODO: add fields (map, arrays for stations/units/incidents, counters, tick, etc.)
     
     CityMap CityMap;
+    public HashMap<Integer, Station> hashMapStation = new HashMap<Integer, Station>();
     
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
@@ -34,10 +39,10 @@ public class CityRescueImpl implements CityRescue {
             throw new InvalidGridException("Invalid Size: height has to be greater than 0");
         }
         
-        // This is quite unclear | The Type, Nane and Method are all the same name
+        // This is quite unclear | The Type, Name and Constructor are all the same name
         CityMap CityMap = new CityMap(width, height);
         
-        throw new UnsupportedOperationException("Not implemented yet");
+        // throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
@@ -68,7 +73,7 @@ public class CityRescueImpl implements CityRescue {
         // Should I change the value here or within the class via a method call?
         this.CityMap.addObstacle(x, y);
         
-        throw new UnsupportedOperationException("Not implemented yet");
+        // throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
@@ -83,14 +88,14 @@ public class CityRescueImpl implements CityRescue {
         if (y < 0 || y >= this.CityMap.getSize()[1]) {
             throw new InvalidLocationException("Trying to remove an obstacle that doesn't (Couldn't) exist");
         }
-        
         // Same logic here as the method above
         if (this.CityMap.isCellClear(x, y)) {
             throw new InvalidLocationException("Trying to remove an obstacle from an empty space");
         }
         
+        this.CityMap.removeObstacle(x, y);
         
-        throw new UnsupportedOperationException("Not implemented yet");
+        // throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
@@ -114,25 +119,68 @@ public class CityRescueImpl implements CityRescue {
         // of names or coords.
         // Stations can take any type of Unit(Vehicle)
         
-        throw new UnsupportedOperationException("Not implemented yet");
+        // return station ID
+        int tempId = Station.getNumberOfStations();
+        hashMapStation.put(Station.getNumberOfStations(), new Station(name, x, y));
+        return tempId;
+        
+        // throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
         // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        
+        if (!hashMapStation.containsKey(stationId)) {
+            throw new IDNotRecognisedException("No such station exists");
+        }
+        
+        Station station = hashMapStation.get(stationId);
+        
+        if (station.getNumberOfOwnedUnits() != 0) {
+            throw new IllegalStateException("Trying to remove a station that still owns units");
+        }
+        
+        hashMapStation.remove(stationId);
+        
+        // throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public void setStationCapacity(int stationId, int maxUnits) throws IDNotRecognisedException, InvalidCapacityException {
         // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        
+        if (!hashMapStation.containsKey(stationId)) {
+            throw new IDNotRecognisedException("No such station exists");
+        }
+        
+        if (maxUnits < 0) {
+            throw new InvalidCapacityException("Capacity must not be less than 0");
+        }
+        
+        Station station = hashMapStation.get(stationId);
+        
+        if (station.getNumberOfOwnedUnits() > maxUnits) {
+            throw new InvalidCapacityException("Cannot set max capacity to a number lower than the currently owned units");
+        }
+        
+        station.setMaxCapacity(maxUnits);
+        
+        // throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public int[] getStationIds() {
         // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        int listLength = hashMapStation.size();
+        // HashMap to int Set
+        Set<Integer> idKeySet = hashMapStation.keySet();
+        // int Set to int Array
+        int[] idArray = idKeySet.stream().mapToInt(x -> x).toArray();
+        
+        return idArray;
+        
+        //throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
