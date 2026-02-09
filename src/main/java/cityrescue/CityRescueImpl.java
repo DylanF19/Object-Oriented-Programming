@@ -19,7 +19,9 @@ public class CityRescueImpl implements CityRescue {
 
     // TODO: add fields (map, arrays for stations/units/incidents, counters, tick, etc.)
     
+    // Initialise the map of the city fot the constructor
     CityMap CityMap;
+    // Create HashMap to keep track of the stations <id number, Station object>
     public HashMap<Integer, Station> hashMapStation = new HashMap<Integer, Station>();
     
     @Override
@@ -113,10 +115,7 @@ public class CityRescueImpl implements CityRescue {
             throw new InvalidLocationException("Trying to place a station out of bounds");
         }
         
-        // TODO: code station object so that we can 
-        // assign values to them.
-        // may need to make a list of stations to prevent overlap
-        // of names or coords.
+        // TODO: 
         // Stations can take any type of Unit(Vehicle)
         
         // return station ID
@@ -186,30 +185,42 @@ public class CityRescueImpl implements CityRescue {
     @Override
     public int addUnit(int stationId, UnitType type) throws IDNotRecognisedException, InvalidUnitException, IllegalStateException {
         // TODO: implement
+        // Use stationId to set Unit ownership
+        // Unit Class needs to be made
+        // Creates a Unit object which  will have to be recorded
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public void decommissionUnit(int unitId) throws IDNotRecognisedException, IllegalStateException {
         // TODO: implement
+        // removes the corresponding Unit.
+        // removing the Unit by removing it's entry from a list 
+        // could be counted as a data leak.
+        // I wonder if an object will have to be explicitly removed
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public void transferUnit(int unitId, int newStationId) throws IDNotRecognisedException, IllegalStateException {
         // TODO: implement
+        // changes the ownership a Unit from one station to another
+        // Likely be as simple as an overwrite in the object's variables.
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public void setUnitOutOfService(int unitId, boolean outOfService) throws IDNotRecognisedException, IllegalStateException {
         // TODO: implement
+        // A state change using the given enums.
+        // Other states will have to be disabled.
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public int[] getUnitIds() {
         // TODO: implement
+        // Similar approach to getting the station ids
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
