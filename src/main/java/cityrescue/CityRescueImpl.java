@@ -20,12 +20,13 @@ public class CityRescueImpl implements CityRescue {
     // add fields (map, arrays for stations/units/incidents, counters, tick, etc.) as they are needed
     // Do check if it is necessary to put things here. Globals and objects; sure.
     // individual variables; maybe not.
-
+    int maxStationAmount = 20;
+    int maxUnitAmount = 40;
     // Initialise the map of the city for the constructor
     CityMap cityMap;
     // It's an array now with a max size of 20
-    Station[] stations = new Station[20];
-
+    Station[] stations = new Station[maxStationAmount];
+    Units[] units = new Units[maxUnitAmount];
     
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
@@ -160,10 +161,11 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getStationIds() {
-        // HashMap to int Set
-        Set<Integer> idKeySet = hashMapStation.keySet();
-        // int Set to int Array
-        return idKeySet.stream().mapToInt(x -> x).toArray();
+        int[] idList = new int[maxStationAmount];
+        for (int i; i < stations.length; i++) {
+            idList[i] = stations[i].getId();
+        }
+        return idList;
     }
 
     @Override
