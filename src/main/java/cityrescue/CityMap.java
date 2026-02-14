@@ -1,4 +1,4 @@
-package java.cityrescue;
+package main.java.cityrescue;
 
 
 /**
@@ -10,7 +10,7 @@ package java.cityrescue;
 public class CityMap
 {
     // instance variables - replace the example below with your own
-    private int[][] Map;
+    private int[][] map;
     private int width;
     private int height;
     
@@ -22,13 +22,13 @@ public class CityMap
     {
         this.width = width;
         this.height = height;
-        Map = new int[width][height];
+        map = new int[width][height];
         
         for (int i = 0; i < width; i++) {
 
             for (int j = 0; j < height; j++) {
                 // 0 is clear, 1 is blocked
-                Map[i][j] = 0;
+                map[i][j] = 0;
                 
             }
         }
@@ -44,37 +44,23 @@ public class CityMap
     
     public boolean isCellClear(int x, int y) 
     {
-        if (Map[x][y] == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (map[x][y] == 0);
     }
     
-        public boolean isCellObstructed(int x, int y) 
+    public boolean isCellObstructed(int x, int y) 
     {
-        if (Map[x][y] == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return (map[x][y] == 1);
     }
-    
-    /**
-     * addObstacle Method
-     * 
-     * - I don't know if the cell properties of the map should be
-     * - altered here. 
-     */
+
     public void addObstacle(int x, int y) 
     {
         // 1 for a blocked cell
-        this.Map[x][y] = 1;
+        this.map[x][y] = 1;
     }
-    
+
     public void removeObstacle(int x, int y) 
     {
         // 1 for a blocked cell
-        this.Map[x][y] = 0;
+        this.map[x][y] = 0;
     }
 }

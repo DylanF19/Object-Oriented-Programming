@@ -1,7 +1,7 @@
-package java.cityrescue;
+package main.java.cityrescue;
 
-import java.cityrescue.enums.*;
-import java.cityrescue.exceptions.*;
+import main.java.cityrescue.enums.*;
+import main.java.cityrescue.exceptions.*;
 
 public interface CityRescue {
     void initialise(int width, int height) throws InvalidGridException;

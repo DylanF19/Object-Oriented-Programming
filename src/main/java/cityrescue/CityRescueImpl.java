@@ -117,19 +117,25 @@ public class CityRescueImpl implements CityRescue {
     @Override
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
         
-        if (!hashMapStation.containsKey(stationId)) {
-            throw new IDNotRecognisedException("No such station exists");
-        }
+
         
         if (station.getNumberOfOwnedUnits() != 0) {
             throw new IllegalStateException("Trying to remove a station that still owns units");
         }
-        // need to check if the stationID matches the number of stations at the point it was set
+        // got through the list, check each id. If found, set to null, else continue
+        // if no Id found, raise error
+        boolean found = false;
         for (int i; i < stations.length; i++) {
             if (stations[i].getId() == stationId) {
                 stations[i] = null;
+                found = true;
             }
         }
+
+        if (!found) { // if Id not found
+            throw new IDNotRecognisedException("No such station exists");
+        }
+        
     }
 
     @Override
