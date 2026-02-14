@@ -1,4 +1,4 @@
-package java.cityrescue;
+package main.java.cityrescue;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -12,14 +12,14 @@ import java.util.HashMap;
 public class Station
 {
     // instance variables - replace the example below with your own
-    public int stationId;
-    public String name;
-    public int coordX;
-    public int coordY;
-    public int parkingCapacity = 2; //This int is abitrary
-    public int numberOfOwnedUnits = 0;
+    private int stationId;
+    private String name;
+    private int coordX;
+    private int coordY;
+    private int parkingCapacity = 2; //This int is abitrary
+    private int numberOfOwnedUnits = 0;
     
-    public static int numberOfStations = 0;
+    private static int numberOfStations = 0;
     
     /**
      * Constructor for objects of class Station
@@ -41,6 +41,11 @@ public class Station
         numberOfStations++;
     }
     
+    public int getId() 
+    {
+        return this.stationId;
+    }
+
     public static int getNumberOfStations()
     {
         //TODO; find a way to group Station objects together

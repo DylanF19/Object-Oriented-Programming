@@ -1,14 +1,14 @@
-package java.cityrescue;
+package main.java.cityrescue;
 
-import java.cityrescue.enums.*;
-import java.cityrescue.exceptions.*;
-import java.cityrescue.Station;
-import java.cityrescue.CityMap;
-import java.util.List;
-import java.util.ArrayList;
+import main.java.cityrescue.enums.*;
+import main.java.cityrescue.exceptions.*;
+import main.java.cityrescue.CityMap;  //sonarqube says this is imported implicitly. IDK what to trust
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.naming.InvalidNameException;
+
+import java.util.Map;
 /**
  * CityRescueImpl (Starter)
  *
@@ -17,137 +17,123 @@ import java.util.Set;
  */
 public class CityRescueImpl implements CityRescue {
 
-    // TODO: add fields (map, arrays for stations/units/incidents, counters, tick, etc.)
-    
-    // Initialise the map of the city fot the constructor
-    CityMap CityMap;
-    // Create HashMap to keep track of the stations <id number, Station object>
-    public HashMap<Integer, Station> hashMapStation = new HashMap<Integer, Station>();
+    // add fields (map, arrays for stations/units/incidents, counters, tick, etc.) as they are needed
+    // Do check if it is necessary to put things here. Globals and objects; sure.
+    // individual variables; maybe not.
+
+    // Initialise the map of the city for the constructor
+    CityMap cityMap;
+    // It's an array now with a max size of 20
+    Station[] stations = new Station[20];
+
     
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
-        // TODO: implement
-        
         // - Data validation - 
         if (width > 0) {
-           this.CityMap.getSize()[0] = width; 
-        } else {
             throw new InvalidGridException("Invalid Size: width has to be greater than 0");
         }
         
         if (height > 0) {
-           this.CityMap.getSize()[1] = height; 
-        } else {
             throw new InvalidGridException("Invalid Size: height has to be greater than 0");
         }
         
-        // This is quite unclear | The Type, Name and Constructor are all the same name
-        CityMap CityMap = new CityMap(width, height);
-        
-        // throw new UnsupportedOperationException("Not implemented yet");
+        cityMap = new CityMap(width, height);
+
     }
 
     @Override
     public int[] getGridSize() {
-        // TODO: implement
-        return CityMap.getSize();
+        return cityMap.getSize();
     }
 
     @Override
     public void addObstacle(int x, int y) throws InvalidLocationException {
-        // TODO: implement
-        
         // - Data validation - 
-        if (x < 0 || x >= this.CityMap.getSize()[0]) {
+        if (x < 0 || x >= this.cityMap.getSize()[0]) {
             throw new InvalidLocationException("Trying to place an obstacle out of bounds");
         }
         
-        if (y < 0 || y >= this.CityMap.getSize()[1]) {
+        if (y < 0 || y >= this.cityMap.getSize()[1]) {
             throw new InvalidLocationException("Trying to place an obstacle out of bounds");
         }
         // Though this may not cause an error when run without this conditional, 
         // it would make it harder to keep track of certain values when overwriting a 
         // space's value with that same value.
-        if (this.CityMap.isCellObstructed(x, y)) {
+        if (this.cityMap.isCellObstructed(x, y)) {
             throw new InvalidLocationException("Trying to place an obstacle where there is already one");
         }
         
         // Should I change the value here or within the class via a method call?
-        this.CityMap.addObstacle(x, y);
-        
-        // throw new UnsupportedOperationException("Not implemented yet");
+        this.cityMap.addObstacle(x, y);
+
     }
 
     @Override
     public void removeObstacle(int x, int y) throws InvalidLocationException {
-        // TODO: implement
-        
         // - Data validation - 
-        if (x < 0 || x >= this.CityMap.getSize()[0]) {
+        if (x < 0 || x >= this.cityMap.getSize()[0]) {
             throw new InvalidLocationException("Trying to remove an obstacle that doesn't (Couldn't) exist");
         }
         
-        if (y < 0 || y >= this.CityMap.getSize()[1]) {
+        if (y < 0 || y >= this.cityMap.getSize()[1]) {
             throw new InvalidLocationException("Trying to remove an obstacle that doesn't (Couldn't) exist");
         }
         // Same logic here as the method above
-        if (this.CityMap.isCellClear(x, y)) {
+        if (this.cityMap.isCellClear(x, y)) {
             throw new InvalidLocationException("Trying to remove an obstacle from an empty space");
         }
         
-        this.CityMap.removeObstacle(x, y);
-        
-        // throw new UnsupportedOperationException("Not implemented yet");
+        this.cityMap.removeObstacle(x, y);
     }
 
     @Override
     public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
-        // TODO: implement
+
         if (name.isEmpty()) {
             throw new InvalidNameException("Name of station cannot be empty");
         }
         
-        if (x < 0 || x >= this.CityMap.getSize()[0]) {
+        if (x < 0 || x >= this.cityMap.getSize()[0]) {
             throw new InvalidLocationException("Trying to place a station out of bounds");
         }
         
-        if (y < 0 || y >= this.CityMap.getSize()[1]) {
+        if (y < 0 || y >= this.cityMap.getSize()[1]) {
             throw new InvalidLocationException("Trying to place a station out of bounds");
         }
-        
-        // TODO: 
+
         // Stations can take any type of Unit(Vehicle)
         
-        // return station ID
-        int tempId = Station.getNumberOfStations();
-        hashMapStation.put(Station.getNumberOfStations(), new Station(name, x, y));
-        return tempId;
-        
-        // throw new UnsupportedOperationException("Not implemented yet");
+        tempObj = new Station(name, x, y);
+        for (int i; i < stations.length; i++) {
+            if (stations[i] == null) {
+                stations[i] = tempObj;
+            }
+        }
+
+        return tempObj.getId();
     }
 
     @Override
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
         
         if (!hashMapStation.containsKey(stationId)) {
             throw new IDNotRecognisedException("No such station exists");
         }
         
-        Station station = hashMapStation.get(stationId);
-        
         if (station.getNumberOfOwnedUnits() != 0) {
             throw new IllegalStateException("Trying to remove a station that still owns units");
         }
-        
-        hashMapStation.remove(stationId);
-        
-        // throw new UnsupportedOperationException("Not implemented yet");
+        // need to check if the stationID matches the number of stations at the point it was set
+        for (int i; i < stations.length; i++) {
+            if (stations[i].getId() == stationId) {
+                stations[i] = null;
+            }
+        }
     }
 
     @Override
     public void setStationCapacity(int stationId, int maxUnits) throws IDNotRecognisedException, InvalidCapacityException {
-        // TODO: implement
         
         if (!hashMapStation.containsKey(stationId)) {
             throw new IDNotRecognisedException("No such station exists");
@@ -164,22 +150,14 @@ public class CityRescueImpl implements CityRescue {
         }
         
         station.setMaxCapacity(maxUnits);
-        
-        // throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public int[] getStationIds() {
-        // TODO: implement
-        int listLength = hashMapStation.size();
         // HashMap to int Set
         Set<Integer> idKeySet = hashMapStation.keySet();
         // int Set to int Array
-        int[] idArray = idKeySet.stream().mapToInt(x -> x).toArray();
-        
-        return idArray;
-        
-        //throw new UnsupportedOperationException("Not implemented yet");
+        return idKeySet.stream().mapToInt(x -> x).toArray();
     }
 
     @Override
@@ -278,6 +256,4 @@ public class CityRescueImpl implements CityRescue {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }
-
-
 
