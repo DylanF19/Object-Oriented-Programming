@@ -89,10 +89,10 @@ public class CityRescueImpl implements CityRescue {
     }
 
     @Override
-    public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
+    public int addStation(String name, int x, int y) throws cityrescue.exceptions.InvalidNameException, InvalidLocationException {
         // There's already a InvalidNameException in Java. I doin't know why I have to do this.
         if (name.isEmpty()) {
-            throw new InvalidNameException("Name of station cannot be empty");
+            throw new cityrescue.exceptions.InvalidNameException("Name of station cannot be empty");
         }
         
         if (x < 0 || x >= this.cityMap.getSize()[0]) {
@@ -106,7 +106,7 @@ public class CityRescueImpl implements CityRescue {
         // Stations can take any type of Unit(Vehicle)
         
         Station tempObj = new Station(name, x, y);
-        for (int i; i < stations.length; i++) {
+        for (int i = 0; i < stations.length; i++) {
             if (stations[i] == null) {
                 stations[i] = tempObj;
                 break;
