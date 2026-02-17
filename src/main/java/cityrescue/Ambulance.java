@@ -1,14 +1,9 @@
-package main.java.cityrescue;
+package cityrescue;
+
+import cityrescue.enums.UnitType;
 
 public class Ambulance extends Units {
     // constants and variable declarations
-    private String unitType = UnitType.AMBULANCE;
+    private UnitType unitType = UnitType.AMBULANCE;
 
-
-
-
-    public String getUnitType() 
-    {
-        return this.unitType;
-    }
 }

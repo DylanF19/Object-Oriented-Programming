@@ -1,4 +1,4 @@
-package main.java.cityrescue;
+package cityrescue;
 
 
 /**

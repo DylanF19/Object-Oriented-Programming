@@ -1,4 +1,6 @@
-package main.java.cityrescue;
+package cityrescue;
+
+import cityrescue.enums.UnitType;
 
 /**
  * Class for the Units object
@@ -8,9 +10,9 @@ package main.java.cityrescue;
  */
 abstract class Units {
    // constant declarations, if any
-    int coordX;
-    int coordY;
-
+   private int coordX;
+   private int coordY;
+   private UnitType unitType;
 
    // method signatures
    public int[] getCoordinates() 
@@ -19,6 +21,11 @@ abstract class Units {
         dimensions[0] = this.coordX;
         dimensions[1] = this.coordY;
         return dimensions;
+   }
+
+   public UnitType getUnitType() 
+   {
+      return this.unitType;
    }
    // An enum with values RIGHT, LEFT
 }

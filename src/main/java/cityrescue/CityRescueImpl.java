@@ -1,8 +1,8 @@
-package main.java.cityrescue;
+package cityrescue;
 
-import main.java.cityrescue.enums.*;
-import main.java.cityrescue.exceptions.*;
-import main.java.cityrescue.CityMap;  //sonarqube says this is imported implicitly. IDK what to trust
+import cityrescue.enums.*;
+import cityrescue.exceptions.*;
+import cityrescue.CityMap;  //sonarqube says this is imported implicitly. IDK what to trust
 import java.util.HashMap;
 import java.util.Set;
 
@@ -31,11 +31,11 @@ public class CityRescueImpl implements CityRescue {
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
         // - Data validation - 
-        if (width > 0) {
+        if (width <= 0) {
             throw new InvalidGridException("Invalid Size: width has to be greater than 0");
         }
         
-        if (height > 0) {
+        if (height <= 0) {
             throw new InvalidGridException("Invalid Size: height has to be greater than 0");
         }
         
@@ -90,7 +90,7 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
-
+        // There's already a InvalidNameException in Java. I doin't know why I have to do this.
         if (name.isEmpty()) {
             throw new InvalidNameException("Name of station cannot be empty");
         }
@@ -105,10 +105,11 @@ public class CityRescueImpl implements CityRescue {
 
         // Stations can take any type of Unit(Vehicle)
         
-        tempObj = new Station(name, x, y);
+        Station tempObj = new Station(name, x, y);
         for (int i; i < stations.length; i++) {
             if (stations[i] == null) {
                 stations[i] = tempObj;
+                break;
             }
         }
 
@@ -117,17 +118,16 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
-        
-
-        
-        if (station.getNumberOfOwnedUnits() != 0) {
-            throw new IllegalStateException("Trying to remove a station that still owns units");
-        }
+    
         // got through the list, check each id. If found, set to null, else continue
         // if no Id found, raise error
         boolean found = false;
-        for (int i; i < stations.length; i++) {
+        for (int i = 0; i < stations.length; i++) {
             if (stations[i].getId() == stationId) {
+                if (stations[i].getNumberOfOwnedUnits() != 0) {
+                    throw new IllegalStateException("Trying to remove a station that still owns units");
+                }
+
                 stations[i] = null;
                 found = true;
             }
@@ -142,27 +142,29 @@ public class CityRescueImpl implements CityRescue {
     @Override
     public void setStationCapacity(int stationId, int maxUnits) throws IDNotRecognisedException, InvalidCapacityException {
         
-        if (!hashMapStation.containsKey(stationId)) {
-            throw new IDNotRecognisedException("No such station exists");
-        }
-        
         if (maxUnits < 0) {
             throw new InvalidCapacityException("Capacity must not be less than 0");
         }
-        
-        Station station = hashMapStation.get(stationId);
-        
-        if (station.getNumberOfOwnedUnits() > maxUnits) {
-            throw new InvalidCapacityException("Cannot set max capacity to a number lower than the currently owned units");
+
+        boolean found = false;
+        for (int i = 0; i < stations.length; i++) {
+            if (stations[i].getId() == stationId) {
+                stations[i].setMaxCapacity(maxUnits);
+                }
+
+                stations[i] = null;
+                found = true;
+            }
+
+        if (!found) { // if Id not found
+            throw new IDNotRecognisedException("No such station exists");
         }
-        
-        station.setMaxCapacity(maxUnits);
     }
 
     @Override
     public int[] getStationIds() {
         int[] idList = new int[maxStationAmount];
-        for (int i; i < stations.length; i++) {
+        for (int i = 0; i < stations.length; i++) {
             idList[i] = stations[i].getId();
         }
         return idList;
