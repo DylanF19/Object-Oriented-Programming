@@ -1,6 +1,8 @@
 package cityrescue;
 
-import cityrescue.enums.UnitType;
+import java.lang.Thread.State;
+
+import cityrescue.enums.*;
 
 /**
  * Class for the Units object
@@ -9,10 +11,13 @@ import cityrescue.enums.UnitType;
  * @version (0.0)
  */
 abstract class Units {
+   // abstract means no constructor, just values and methods for subclasses
    // constant declarations, if any
-   private int coordX;
-   private int coordY;
-   private UnitType unitType;
+   protected int coordX;
+   protected int coordY;
+   private int unitId = 1; // The ID is tied to each unit and not each type so the incrementer is put here.
+   protected UnitType unitType;
+   protected UnitStatus state = UnitStatus.IDLE;
 
    // method signatures
    public int[] getCoordinates() 
@@ -26,6 +31,17 @@ abstract class Units {
    public UnitType getUnitType() 
    {
       return this.unitType;
+   }
+
+   protected int createNewId() 
+   {
+      unitId += 1;
+      return unitId;
+   }
+
+   public int getUnitId()
+   {
+      return this.unitId;
    }
    // An enum with values RIGHT, LEFT
 }

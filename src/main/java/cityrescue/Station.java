@@ -1,6 +1,10 @@
 package cityrescue;
 
 import java.util.List;
+
+import cityrescue.enums.UnitType;
+import cityrescue.exceptions.InvalidUnitException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 /**
@@ -18,17 +22,10 @@ public class Station
     private int coordY;
     private int parkingCapacity = 2; //This int is abitrary
     private int numberOfOwnedUnits = 0;
-    
+    private Units[] ownedUnits = new Units[parkingCapacity];
+
     private static int numberOfStations = 0;
     
-    /**
-     * Constructor for objects of class Station
-     * Params of Station:
-     *      x coordinate
-     *      y coordinate
-     *      Station ID
-     *      Station Parking Capacity
-     */
     public Station(String name, int x, int y)
     {
         // initialise instance variables
@@ -41,6 +38,42 @@ public class Station
         numberOfStations++;
     }
     
+    public void addUnit(UnitType type) throws InvalidUnitException
+    // I would love to know an alternative to conditionals
+    // I don't think we cac call the object from the type directly.
+    {
+        if (type == UnitType.AMBULANCE) {
+            for (int i = 0; i < ownedUnits.length; i++) {
+                if (ownedUnits[i] == null) {
+                    ownedUnits[i] = new Ambulance(this.coordX, this.coordY, this.stationId);
+                    this.numberOfOwnedUnits += 1;
+                    break;
+                }
+            }
+
+        } else if (type == UnitType.FIRE_ENGINE) {
+            for (int i = 0; i < ownedUnits.length; i++) {
+                if (ownedUnits[i] == null) {
+                    ownedUnits[i] = new FireEngine(this.coordX, this.coordY, this.stationId);
+                    this.numberOfOwnedUnits += 1;
+                    break;
+                }
+            }
+
+        } else if (type == UnitType.POLICE_CAR) {
+            for (int i = 0; i < ownedUnits.length; i++) {
+                if (ownedUnits[i] == null) {
+                    ownedUnits[i] = new PoliceCar(this.coordX, this.coordY, this.stationId);
+                    this.numberOfOwnedUnits += 1;
+                    break;
+                }
+            }
+        } else {
+            throw new InvalidUnitException("Data validation should be called BEFORE being put in the method - D");
+        }
+
+    }
+
     public int getId() 
     {
         return this.stationId;

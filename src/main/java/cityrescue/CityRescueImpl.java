@@ -176,7 +176,24 @@ public class CityRescueImpl implements CityRescue {
         // Use stationId to set Unit ownership
         // Unit Class needs to be made
         // Creates a Unit object which  will have to be recorded
-        throw new UnsupportedOperationException("Not implemented yet");
+
+        boolean found = false;
+        for (int i = 0; i < stations.length; i++) {
+            if (stations[i].getId() == stationId) {
+                stations[i].addUnit(type);
+                }
+
+                stations[i] = null;
+                found = true;
+            }
+
+        if (!found) { // if Id not found
+            throw new IDNotRecognisedException("No such station exists");
+        }
+        
+
+
+        return unitId;
     }
 
     @Override
