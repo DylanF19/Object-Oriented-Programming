@@ -10,7 +10,7 @@ public class PoliceCar extends Units {
     PoliceCar() 
     {
         unitId = createNewId();
-        super.incrementNumberOfUnits();
+        incrementNumberOfUnits();
     }
 
 }

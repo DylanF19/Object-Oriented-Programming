@@ -17,6 +17,7 @@ public class Station
     private int coordX;
     private int coordY;
     private int parkingCapacity = 2; //This int is abitrary
+    
     private int numberOfOwnedUnits = 0;
     private Units[] ownedUnits = new Units[parkingCapacity];
 
@@ -43,7 +44,7 @@ public class Station
     {
         for (int i = 0; i < ownedUnits.length; i++) {
             if (ownedUnits[i].getUnitId() == unitId) {
-                ownedUnits[i].decrementNumberOfUnits(); 
+                Units.decrementNumberOfUnits(); 
                 ownedUnits[i] = null;
                 // This is so amaturish and the result of having each station store the 
                 // Unit references. Maybe there's a different method to recording the
@@ -83,7 +84,7 @@ public class Station
         return coordinates;
     }
 
-    public int getId() 
+    public int getStationId() 
     {
         return this.stationId;
     }

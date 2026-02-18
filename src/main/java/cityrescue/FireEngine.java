@@ -1,7 +1,5 @@
 package cityrescue;
 
-import java.nio.file.attribute.FileTime;
-
 import cityrescue.enums.UnitType;
 
 public class FireEngine extends Units {
@@ -12,7 +10,7 @@ public class FireEngine extends Units {
     FireEngine() 
     {
         unitId = createNewId();
-        super.incrementNumberOfUnits();
+        incrementNumberOfUnits();
     }
 
 }

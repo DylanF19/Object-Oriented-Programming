@@ -11,6 +11,6 @@ public class Ambulance extends Units {
     Ambulance() 
     {
         unitId = createNewId();
-        super.incrementNumberOfUnits();
+        incrementNumberOfUnits();
     }
 }

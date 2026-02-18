@@ -18,8 +18,9 @@ abstract class Units {
    protected UnitStatus state = UnitStatus.IDLE;
    protected int ownerStationId;
 
-   protected static int numberOfUnits = 0;
+   private static int numberOfUnits = 0;
 
+   private int currentIncidentFocus;
    // method signatures
    public int[] getCoordinates() 
    {

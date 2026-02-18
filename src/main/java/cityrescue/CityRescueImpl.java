@@ -19,10 +19,31 @@ public class CityRescueImpl implements CityRescue {
     int maxIncidentAmount = 200;
     // Initialise the map of the city for the constructor
     CityMap cityMap;
-    // It's an array now with a max size of 20
+
+    // max length arrays
     Station[] stations = new Station[maxStationAmount];
     Units[] units = new Units[maxUnitAmount];
+    Incident[] incidents = new Incident[maxIncidentAmount];
 
+
+    /**
+     * This is a custom method used to make code more concise, less repetative and more readable
+     *
+     * @author (Dylan Foster)
+     * @version (18/02/2026)
+     * @param (int incidentId)
+     */
+    public Incident findIncidentFromGivenId(int incidentId) throws IDNotRecognisedException
+    {
+        // the for loops are getting annoying. we should only need one
+        for (Incident incident : incidents) {
+            if (incident.getIncidentId() == incidentId) {
+                return incident;
+            }
+        }
+
+        throw new IDNotRecognisedException("Incident ID not recognised");
+    }
 
     /**
      * This is a custom method used to make code more concise, less repetative and more readable
@@ -35,12 +56,12 @@ public class CityRescueImpl implements CityRescue {
     {
         // the for loops are getting annoying. we should only need one
         for (Station station : stations) {
-            if (station.getId() == stationId) {
+            if (station.getStationId() == stationId) {
                 return station;
             }
         }
 
-        throw new IDNotRecognisedException("ID is not in ID list. Station doesn't exist");
+        throw new IDNotRecognisedException("Station ID not recognised");
     }
 
     /**
@@ -60,7 +81,7 @@ public class CityRescueImpl implements CityRescue {
             }
         }
 
-        throw new IDNotRecognisedException("ID is not in ID list. Unit doesn't exist");
+        throw new IDNotRecognisedException("Unit ID not recognised");
     }
 
     /**
@@ -179,15 +200,15 @@ public class CityRescueImpl implements CityRescue {
 
         // Stations can take any type of Unit(Vehicle)
         
-        Station tempObj = new Station(name, x, y);
+        Station tempStation = new Station(name, x, y);
         for (int i = 0; i < stations.length; i++) {
             if (stations[i] == null) {
-                stations[i] = tempObj;
+                stations[i] = tempStation;
                 break;
             }
         }
 
-        return tempObj.getId();
+        return tempStation.getStationId();
     }
 
     @Override
@@ -197,7 +218,7 @@ public class CityRescueImpl implements CityRescue {
         // if no Id found, raise error
         boolean found = false;
         for (int i = 0; i < stations.length; i++){
-            if (stations[i].getId() == stationId) {
+            if (stations[i].getStationId() == stationId) {
                 stations[i] = null;
                 found = true;
             }
@@ -224,7 +245,7 @@ public class CityRescueImpl implements CityRescue {
     public int[] getStationIds() {
         int[] idList = new int[maxStationAmount];
         for (int i = 0; i < stations.length; i++) {
-            idList[i] = stations[i].getId();
+            idList[i] = stations[i].getStationId();
         }
         return idList;
     }
@@ -352,14 +373,36 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int reportIncident(IncidentType type, int severity, int x, int y) throws InvalidSeverityException, InvalidLocationException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        
+        if (severity < 1 || severity > 5) {
+            throw new InvalidSeverityException("Severity must be in the bounds of 1 to 5");
+        }
+
+        if (cityMap.isCellObstructed(x, y)) {
+            throw new InvalidLocationException("Incident cannot be created on a blocked cell");
+        }
+        
+        for (int i = 0; i < incidents.length; i++) {
+            
+            if (incidents[i] != null) {
+
+                Incident tempIncident = new Incident(x, y, type, severity);
+                incidents[i] = tempIncident;
+                return tempIncident.getIncidentId();
+
+            }
+        }
+
+        throw new CapacityExceededException("Far too many incidents");
+
     }
 
     @Override
     public void cancelIncident(int incidentId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+
+        Incident incident = findIncidentFromGivenId(incidentId);
+
+        
     }
 
     @Override
