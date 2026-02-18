@@ -2,13 +2,7 @@ package cityrescue;
 
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
-import cityrescue.CityMap;  //sonarqube says this is imported implicitly. IDK what to trust
-import java.util.HashMap;
-import java.util.Set;
 
-import javax.naming.InvalidNameException;
-
-import java.util.Map;
 /**
  * CityRescueImpl (Starter)
  *
@@ -27,7 +21,85 @@ public class CityRescueImpl implements CityRescue {
     // It's an array now with a max size of 20
     Station[] stations = new Station[maxStationAmount];
     Units[] units = new Units[maxUnitAmount];
-    
+
+    /**
+     * This is a custom method used to make code more concise, less repetative and more readable
+     *
+     * @author (Dylan Foster)
+     * @version (18/02/2026)
+     * @param (int stationId)
+     */
+    public Station findStationFromGivenId(int stationId) throws IDNotRecognisedException
+    {
+        // the for loops are getting annoying. we should only need one
+        for (Station station : stations) {
+            if (station.getId() == stationId) {
+                return station;
+            }
+        }
+
+        throw new IDNotRecognisedException("ID is not in ID list. Station doesn't exist");
+    }
+
+    /**
+     * This is a custom method used to make code more concise, less repetative and more readable
+     *
+     * @author (Dylan Foster)
+     * @version (18/02/2026)
+     * @param (int unitId)
+     */
+    public Units findUnitFromGivenId(int unitId) throws IDNotRecognisedException
+    {
+        // the for loops are getting annoying. we should only need one
+        for (Station station : stations) {
+            for (Units unit : station.getOwnedUnitList())
+                if (unit.getUnitId() == unitId) {
+                    return unit;
+            }
+        }
+
+        throw new IDNotRecognisedException("ID is not in ID list. Unit doesn't exist");
+    }
+
+    /**
+     * This is a custom method used to make code more concise, less repetative and more readable
+     *
+     * @author (Dylan Foster)
+     * @version (18/02/2026)
+     * @param (int unitId)
+     */
+    public Station findStationFromGivenUnitId(int unitId) throws IDNotRecognisedException
+    {
+        return findStationFromGivenId(findUnitFromGivenId(unitId).getOwnerId());
+    }
+
+    /**
+     * I made this method to seperate the creation of a Unit from it's addition to
+     * a station. Makes adding and removing Units less messy
+     *
+     * @author (Dylan Foster)
+     * @version (18/02/2026)
+     * @param (int unitId)
+     */
+    public Units createUnit(UnitType type) throws InvalidUnitException
+    {
+        if (type == UnitType.AMBULANCE) {
+            return new Ambulance();
+
+        }
+
+        if (type == UnitType.FIRE_ENGINE) {
+            return new FireEngine();
+
+        }
+
+        if (type == UnitType.POLICE_CAR) {
+            return new PoliceCar();
+        }
+
+        throw new InvalidUnitException("Unit type not recognised");
+    }
+
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
         // - Data validation - 
@@ -122,12 +194,8 @@ public class CityRescueImpl implements CityRescue {
         // got through the list, check each id. If found, set to null, else continue
         // if no Id found, raise error
         boolean found = false;
-        for (int i = 0; i < stations.length; i++) {
+        for (int i = 0; i < stations.length; i++){
             if (stations[i].getId() == stationId) {
-                if (stations[i].getNumberOfOwnedUnits() != 0) {
-                    throw new IllegalStateException("Trying to remove a station that still owns units");
-                }
-
                 stations[i] = null;
                 found = true;
             }
@@ -146,19 +214,8 @@ public class CityRescueImpl implements CityRescue {
             throw new InvalidCapacityException("Capacity must not be less than 0");
         }
 
-        boolean found = false;
-        for (int i = 0; i < stations.length; i++) {
-            if (stations[i].getId() == stationId) {
-                stations[i].setMaxCapacity(maxUnits);
-                }
-
-                stations[i] = null;
-                found = true;
-            }
-
-        if (!found) { // if Id not found
-            throw new IDNotRecognisedException("No such station exists");
-        }
+        Station station = findStationFromGivenId(stationId);
+        station.setMaxCapacity(maxUnits);
     }
 
     @Override
@@ -172,60 +229,78 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addUnit(int stationId, UnitType type) throws IDNotRecognisedException, InvalidUnitException, IllegalStateException {
-        // TODO: implement
+
         // Use stationId to set Unit ownership
         // Unit Class needs to be made
         // Creates a Unit object which  will have to be recorded
 
-        boolean found = false;
-        for (int i = 0; i < stations.length; i++) {
-            if (stations[i].getId() == stationId) {
-                stations[i].addUnit(type);
-                }
+        // Make a unit and tie it to the station given
 
-                stations[i] = null;
-                found = true;
-            }
+        // Loop finds the corresponding station and checks it's values
+        // Returns added unit id if found, else throws an error
+        // this.unitId --> ownedUnits[i].getUnitId() --> stations[i].addUnit(type) --> unit Id
 
-        if (!found) { // if Id not found
-            throw new IDNotRecognisedException("No such station exists");
-        }
-        
+        // Create unit first then add it to station ownership array
 
-
-        return unitId;
+        // get station
+        Station station = findStationFromGivenId(stationId);
+        // make unit
+        Units unit = createUnit(type);
+        // add unit
+        station.addUnit(unit);
+        // return unit id
+        return unit.getUnitId();
     }
 
     @Override
     public void decommissionUnit(int unitId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        // removes the corresponding Unit.
-        // removing the Unit by removing it's entry from a list 
-        // could be counted as a data leak.
-        // I wonder if an object will have to be explicitly removed
-        throw new UnsupportedOperationException("Not implemented yet");
+
+        Units unit = findUnitFromGivenId(unitId);
+
+        if (unit.getUnitStatus() == UnitStatus.AT_SCENE || unit.getUnitStatus() == UnitStatus.EN_ROUTE) {
+            throw new IllegalStateException("Cannot remove a unit that's at or en route to an incident");
+        }
+
+        Station station = findStationFromGivenUnitId(unitId);
+        station.removeUnit(unitId);
     }
 
     @Override
     public void transferUnit(int unitId, int newStationId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
         // changes the ownership a Unit from one station to another
-        // Likely be as simple as an overwrite in the object's variables.
-        throw new UnsupportedOperationException("Not implemented yet");
+        // Possible methods:
+        //  Drag and drop as apecific object from one station array to another.
+        Station oldStation = findStationFromGivenUnitId(unitId);
+        Station newStation = findStationFromGivenId(newStationId);
+        Units selectUnit = findUnitFromGivenId(unitId);
+
+        if (selectUnit.getUnitStatus() == UnitStatus.AT_SCENE || selectUnit.getUnitStatus() == UnitStatus.EN_ROUTE) {
+            throw new IllegalStateException("Cannot transfer a unit that's at or en route to an incident");
+        }
+
+        oldStation.removeUnit(unitId);
+        newStation.addUnit(selectUnit);
+
     }
 
     @Override
     public void setUnitOutOfService(int unitId, boolean outOfService) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        // A state change using the given enums.
-        // Other states will have to be disabled.
-        throw new UnsupportedOperationException("Not implemented yet");
+        
+        Units selectUnit = findUnitFromGivenId(unitId);
+
+        if (selectUnit.getUnitStatus() == UnitStatus.AT_SCENE || selectUnit.getUnitStatus() == UnitStatus.EN_ROUTE) {
+            throw new IllegalStateException("Cannot set a unit that's at or en route to an incident to out of service");
+        }
+        
+        if (outOfService) {
+            selectUnit.setUnitStatus(UnitStatus.OUT_OF_SERVICE);
+        }
+        // It would be very strange for the code to end up here
     }
 
     @Override
     public int[] getUnitIds() {
-        // TODO: implement
-        // Similar approach to getting the station ids
+
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

@@ -18,6 +18,7 @@ abstract class Units {
    private int unitId = 1; // The ID is tied to each unit and not each type so the incrementer is put here.
    protected UnitType unitType;
    protected UnitStatus state = UnitStatus.IDLE;
+   protected int ownerStationId;
 
    // method signatures
    public int[] getCoordinates() 
@@ -26,6 +27,32 @@ abstract class Units {
         dimensions[0] = this.coordX;
         dimensions[1] = this.coordY;
         return dimensions;
+   }
+
+   public void setCoords(int x, int y)
+   {
+      this.coordX = x;
+      this.coordY = y;
+   }
+
+   public void setOwner(int ownerId)
+   {
+      this.ownerStationId = ownerId;
+   }
+
+   public int getOwnerId()
+   {
+      return ownerStationId;
+   }
+
+   public UnitStatus getUnitStatus()
+   {
+      return this.state;
+   }
+
+   public void setUnitStatus(UnitStatus status)
+   {
+      this.state = status;
    }
 
    public UnitType getUnitType() 

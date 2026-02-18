@@ -1,12 +1,8 @@
 package cityrescue;
 
-import java.util.List;
-
-import cityrescue.enums.UnitType;
+import cityrescue.exceptions.CapacityExceededException;
 import cityrescue.exceptions.InvalidUnitException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 /**
  * Class for the Station object
  * 
@@ -38,40 +34,49 @@ public class Station
         numberOfStations++;
     }
     
-    public void addUnit(UnitType type) throws InvalidUnitException
-    // I would love to know an alternative to conditionals
-    // I don't think we cac call the object from the type directly.
+    public Units[] getOwnedUnitList() 
     {
-        if (type == UnitType.AMBULANCE) {
-            for (int i = 0; i < ownedUnits.length; i++) {
-                if (ownedUnits[i] == null) {
-                    ownedUnits[i] = new Ambulance(this.coordX, this.coordY, this.stationId);
-                    this.numberOfOwnedUnits += 1;
-                    break;
-                }
-            }
+        return ownedUnits;
+    }
 
-        } else if (type == UnitType.FIRE_ENGINE) {
-            for (int i = 0; i < ownedUnits.length; i++) {
-                if (ownedUnits[i] == null) {
-                    ownedUnits[i] = new FireEngine(this.coordX, this.coordY, this.stationId);
-                    this.numberOfOwnedUnits += 1;
-                    break;
-                }
+    public void removeUnit(int unitId) 
+    {
+        for (int i = 0; i < ownedUnits.length; i++) {
+            if (ownedUnits[i].getUnitId() == unitId) {
+                ownedUnits[i] = null;
             }
+        }
+    }
 
-        } else if (type == UnitType.POLICE_CAR) {
-            for (int i = 0; i < ownedUnits.length; i++) {
-                if (ownedUnits[i] == null) {
-                    ownedUnits[i] = new PoliceCar(this.coordX, this.coordY, this.stationId);
-                    this.numberOfOwnedUnits += 1;
-                    break;
-                }
+    public void addUnit(Units unit) throws CapacityExceededException
+    // I would love to know an alternative to conditionals
+    // I don't think we can call the object from the type directly.
+
+    // Update: I've decided to create the object first then add it to the list
+    //      to make array manipulation easier
+    {
+        unit.setCoords(this.coordX, this.coordY);
+        unit.setOwner(this.stationId);
+
+        boolean found = false;
+        for (int i = 0; i < ownedUnits.length; i++) {
+            if (ownedUnits[i] == null) {
+                ownedUnits[i] = unit;
+                found = true;
             }
-        } else {
-            throw new InvalidUnitException("Data validation should be called BEFORE being put in the method - D");
         }
 
+        if (!found) {
+            throw new CapacityExceededException("Not enough capacity to add another unit");
+        }
+    }
+
+    public int[] getCoords()
+    {
+        int[] coordinates = new int[1];
+        coordinates[0] = this.coordX;
+        coordinates[1] = this.coordY;
+        return coordinates;
     }
 
     public int getId() 
@@ -81,7 +86,6 @@ public class Station
 
     public static int getNumberOfStations()
     {
-        //TODO; find a way to group Station objects together
         // so that individual objects can be referenced independently
         // through methods.
         return numberOfStations;
@@ -95,6 +99,11 @@ public class Station
     public void setMaxCapacity(int maxUnits) 
     {
         this.parkingCapacity = maxUnits;
+    }
+
+    public String getName()
+    {
+        return this.name;
     }
 }
 
