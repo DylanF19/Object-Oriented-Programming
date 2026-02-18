@@ -15,12 +15,14 @@ public class CityRescueImpl implements CityRescue {
     // Do check if it is necessary to put things here. Globals and objects; sure.
     // individual variables; maybe not.
     int maxStationAmount = 20;
-    int maxUnitAmount = 40;
+    int maxUnitAmount = 50;
+    int maxIncidentAmount = 200;
     // Initialise the map of the city for the constructor
     CityMap cityMap;
     // It's an array now with a max size of 20
     Station[] stations = new Station[maxStationAmount];
     Units[] units = new Units[maxUnitAmount];
+
 
     /**
      * This is a custom method used to make code more concise, less repetative and more readable
@@ -300,14 +302,52 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getUnitIds() {
+    // This is such a mess
 
-        throw new UnsupportedOperationException("Not implemented yet");
+        int[] idList = new int[Units.getNumberOfUnits()];
+        int j = 0;
+
+        for (Station station : stations) {
+
+            Units[] stationUnitList = station.getOwnedUnitList();
+
+            for(int i = 0; i < stationUnitList.length; i++) {
+
+                if (stationUnitList[i] != null) {
+
+                    idList[j] = stationUnitList[i].getUnitId();
+
+                    j++;
+                }
+            }
+        }
+
+        return idList;
     }
 
     @Override
     public String viewUnit(int unitId) throws IDNotRecognisedException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        // Info needed:
+        //  id, owner, coordinates, type, state
+        Units unit = findUnitFromGivenId(unitId);
+        Station station = findStationFromGivenUnitId(unitId);
+
+        String owner = station.getName();
+        int x = unit.getCoordinates()[0];
+        int y = unit.getCoordinates()[1];
+        UnitType type = unit.getUnitType();
+        UnitStatus status = unit.getUnitStatus();
+
+        String header = "===========================\n";
+        return String.format("%7 -- Unit details -- %n Unit id: %1 %n Unit owner: Station %2 %n Unit location: %3,%4 %n Unit type: %5 %n Unit status %6 %n %7",
+                            unitId,
+                            owner,
+                            x,
+                            y,
+                            type,
+                            status,
+                            header);
+
     }
 
     @Override

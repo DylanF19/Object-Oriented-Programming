@@ -1,7 +1,5 @@
 package cityrescue;
 
-import java.lang.Thread.State;
-
 import cityrescue.enums.*;
 
 /**
@@ -19,6 +17,8 @@ abstract class Units {
    protected UnitType unitType;
    protected UnitStatus state = UnitStatus.IDLE;
    protected int ownerStationId;
+
+   protected static int numberOfUnits = 0;
 
    // method signatures
    public int[] getCoordinates() 
@@ -70,5 +70,19 @@ abstract class Units {
    {
       return this.unitId;
    }
-   // An enum with values RIGHT, LEFT
+
+   public static int getNumberOfUnits()
+   {
+      return numberOfUnits;
+   }
+
+   protected static void incrementNumberOfUnits()
+   {
+      numberOfUnits++;
+   }
+
+   protected static void decrementNumberOfUnits()
+   {
+      numberOfUnits--;
+   }
 }

@@ -43,7 +43,11 @@ public class Station
     {
         for (int i = 0; i < ownedUnits.length; i++) {
             if (ownedUnits[i].getUnitId() == unitId) {
+                ownedUnits[i].decrementNumberOfUnits(); 
                 ownedUnits[i] = null;
+                // This is so amaturish and the result of having each station store the 
+                // Unit references. Maybe there's a different method to recording the
+                // units and number there of in seperate threads.
             }
         }
     }
