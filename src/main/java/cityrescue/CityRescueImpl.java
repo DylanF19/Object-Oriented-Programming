@@ -3,6 +3,8 @@ package cityrescue;
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
 
+import java.util.Arrays;
+
 /**
  * CityRescueImpl (Starter)
  *
@@ -94,6 +96,18 @@ public class CityRescueImpl implements CityRescue {
     public Station findStationFromGivenUnitId(int unitId) throws IDNotRecognisedException
     {
         return findStationFromGivenId(findUnitFromGivenId(unitId).getOwnerId());
+    }
+
+    /**
+     * This is a custom method used to make code more concise, less repetative and more readable
+     *
+     * @author (Dylan Foster)
+     * @version (18/02/2026)
+     * @param (int unitId)
+     */
+    public Units findUnitFromGivenIncidentId(int incidentId) throws IDNotRecognisedException
+    {
+        return findUnitFromGivenId(findIncidentFromGivenId(incidentId).getOwnerId());
     }
 
     /**
@@ -247,6 +261,7 @@ public class CityRescueImpl implements CityRescue {
         for (int i = 0; i < stations.length; i++) {
             idList[i] = stations[i].getStationId();
         }
+        Arrays.sort(idList);
         return idList;
     }
 
@@ -342,7 +357,7 @@ public class CityRescueImpl implements CityRescue {
                 }
             }
         }
-
+        Arrays.sort(idList);
         return idList;
     }
 
@@ -402,7 +417,14 @@ public class CityRescueImpl implements CityRescue {
 
         Incident incident = findIncidentFromGivenId(incidentId);
 
-        
+        if (incident.getIncidentStatus() != IncidentStatus.REPORTED || incident.getIncidentStatus() != IncidentStatus.DISPATCHED) {
+            throw new IllegalStateException("Cannot remove a unit that's at or en route to an incident");
+        }
+
+        incident.setIncidentStatus(IncidentStatus.CANCELLED);
+
+        Units unit = findUnitFromGivenIncidentId(incidentId);
+        unit.clearIncidentFocus();
     }
 
     @Override

@@ -12,7 +12,7 @@ import cityrescue.exceptions.*;
 public class Incident {
     
     private static int incidentId = 1;
-    private IncidentType type;
+    private final IncidentType type;
     private IncidentStatus status;
     private int severity;
     private int coordX;
@@ -34,9 +34,34 @@ public class Incident {
         incrementNumberOfIncidents();
     }
 
+    public IncidentType getIncidentType() 
+    {
+        return this.type;
+    }
+
+    public void setIncidentStatus(IncidentStatus status)
+    {
+        this.status = status;
+    }
+
+    public IncidentStatus getIncidentStatus() 
+    {
+        return this.status;
+    }
+
     public int getIncidentId()
     {
         return incidentId;
+    }
+
+    public void setOwner(int ownerId)
+    {
+      this.ownerUnitId = ownerId;
+    }
+
+    public int getOwnerId()
+    {
+      return ownerUnitId;
     }
 
     private static void incrementNumberOfIncidents()

@@ -3,87 +3,99 @@ package cityrescue;
 import cityrescue.enums.*;
 
 /**
- * Class for the Units object
- * 
- * @author (Dylan Foster)
- * @version (0.0)
- */
+* Class for the Units object
+* 
+* @author (Dylan Foster)
+* @version (0.0)
+*/
 abstract class Units {
-   // abstract means no constructor, just values and methods for subclasses
-   // constant declarations, if any
-   protected int coordX;
-   protected int coordY;
-   private int unitId = 1; // The ID is tied to each unit and not each type so the incrementer is put here.
-   protected UnitType unitType;
-   protected UnitStatus state = UnitStatus.IDLE;
-   protected int ownerStationId;
 
-   private static int numberOfUnits = 0;
+    // abstract means no constructor, just values and methods for subclasses
+    // constant declarations, if any
+    protected int coordX;
+    protected int coordY;
+    private int unitId = 1; // The ID is tied to each unit and not each type so the incrementer is put here.
+    protected UnitType unitType;
+    protected UnitStatus state = UnitStatus.IDLE;
+    protected int ownerStationId;
 
-   private int currentIncidentFocus;
-   // method signatures
-   public int[] getCoordinates() 
-   {
+    private static int numberOfUnits = 0;
+    // -1 for no incident
+    private int currentIncidentFocus = -1;
+    // method signatures
+    public int[] getCoordinates() 
+    {
         int[] dimensions = new int[1];
         dimensions[0] = this.coordX;
         dimensions[1] = this.coordY;
         return dimensions;
-   }
+    }
 
-   public void setCoords(int x, int y)
-   {
-      this.coordX = x;
-      this.coordY = y;
-   }
+    public void setIncidentFocus(int incidentId)
+    {
+        this.currentIncidentFocus = incidentId;
+    }
 
-   public void setOwner(int ownerId)
-   {
-      this.ownerStationId = ownerId;
-   }
+    public void clearIncidentFocus()
+    {
+        this.currentIncidentFocus = -1;
+        setUnitStatus(UnitStatus.IDLE);
+    }
 
-   public int getOwnerId()
-   {
-      return ownerStationId;
-   }
+    public void setCoords(int x, int y)
+    {
+        this.coordX = x;
+        this.coordY = y;
+    }
 
-   public UnitStatus getUnitStatus()
-   {
-      return this.state;
-   }
+    public void setOwner(int ownerId)
+    {
+        this.ownerStationId = ownerId;
+    }
 
-   public void setUnitStatus(UnitStatus status)
-   {
-      this.state = status;
-   }
+    public int getOwnerId()
+    {
+        return ownerStationId;
+    }
 
-   public UnitType getUnitType() 
-   {
-      return this.unitType;
-   }
+    public UnitStatus getUnitStatus()
+    {
+        return this.state;
+    }
 
-   protected int createNewId() 
-   {
-      unitId += 1;
-      return unitId;
-   }
+    public void setUnitStatus(UnitStatus status)
+    {
+        this.state = status;
+    }
 
-   public int getUnitId()
-   {
-      return this.unitId;
-   }
+    public UnitType getUnitType() 
+    {
+        return this.unitType;
+    }
 
-   public static int getNumberOfUnits()
-   {
-      return numberOfUnits;
-   }
+    protected int createNewId() 
+    {
+        unitId += 1;
+        return unitId;
+    }
 
-   protected static void incrementNumberOfUnits()
-   {
-      numberOfUnits++;
-   }
+    public int getUnitId()
+    {
+        return this.unitId;
+    }
 
-   protected static void decrementNumberOfUnits()
-   {
-      numberOfUnits--;
-   }
+    public static int getNumberOfUnits()
+    {
+        return numberOfUnits;
+    }
+
+    protected static void incrementNumberOfUnits()
+    {
+        numberOfUnits++;
+    }
+
+    protected static void decrementNumberOfUnits()
+    {
+        numberOfUnits--;
+    }
 }
