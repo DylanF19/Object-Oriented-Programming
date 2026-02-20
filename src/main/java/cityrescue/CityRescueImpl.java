@@ -349,7 +349,7 @@ public class CityRescueImpl implements CityRescue {
 
             for(int i = 0; i < stationUnitList.length; i++) {
 
-                if (stationUnitList[i] != null) {
+                if (stationUnitList[i] == null) {
 
                     idList[j] = stationUnitList[i].getUnitId();
 
@@ -463,4 +463,5 @@ public class CityRescueImpl implements CityRescue {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }
+
 
