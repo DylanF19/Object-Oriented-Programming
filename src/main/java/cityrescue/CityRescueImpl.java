@@ -470,7 +470,7 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void dispatch() {
-    int[] ReportedIncidentList = new int[maxIncidentAmount];
+        int[] ReportedIncidentList = new int[maxIncidentAmount];
         Incident[] ReportedIncidents = new Incident[maxIncidentAmount];
         int j = 0;
         for (int i = 0; i < incidents.length; i++) {
