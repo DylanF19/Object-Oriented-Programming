@@ -429,8 +429,14 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void escalateIncident(int incidentId, int newSeverity) throws IDNotRecognisedException, InvalidSeverityException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        Incident incident = findIncidentFromGivenId(incidentId);
+        if (incident.getIncidentStatus() == IncidentStatus.RESOLVED || incident.getIncidentStatus() == IncidentStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot escelate an incident not currently in progress");
+        }
+        if (newSeverity < 1 || newSeverity > 5) {
+            throw new InvalidSeverityException("Severity must be in the bounds of 1 to 5");
+        }
+        incident.setSeverity(newSeverity);
     }
 
     @Override
