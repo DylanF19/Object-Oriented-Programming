@@ -470,8 +470,94 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void dispatch() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+    int[] ReportedIncidentList = new int[maxIncidentAmount];
+        Incident[] ReportedIncidents = new Incident[maxIncidentAmount];
+        int j = 0;
+        for (int i = 0; i < incidents.length; i++) {
+            IncidentStatus status = incidents[i].getIncidentStatus();
+            if (status.equals("REPORTED"))
+            {
+                int tempID = incidents[i].getIncidentId();
+                ReportedIncidentList[j] = tempID;
+                ReportedIncidents[j] = incidents[i];
+                j+=1;
+            }
+        }
+        Arrays.sort(ReportedIncidentList);
+        Incident[] OrderedReportedIncidents = new Incident[ReportedIncidentList.length];
+        for (int k = 0; k < ReportedIncidentList.length; k++)
+        {
+            for (Incident incident : ReportedIncidents)
+            {
+                if (incident.getIncidentId() == ReportedIncidentList[k])
+                {
+                    OrderedReportedIncidents[k] = incident;
+                }
+            }
+        }
+        for (Incident incident : OrderedReportedIncidents)
+        {
+            UnitType responseType = UnitType.AMBULANCE;
+            
+            if (incident.getIncidentType().equals(IncidentType.MEDICAL))
+            {
+                responseType = UnitType.AMBULANCE;
+            }
+            if (incident.getIncidentType().equals(IncidentType.FIRE))
+            {
+                responseType = UnitType.FIRE_ENGINE;
+            }
+            if (incident.getIncidentType().equals(IncidentType.CRIME))
+            {
+                responseType = UnitType.POLICE_CAR;
+            }
+
+            Units[] ElegibleUnits = new Units[maxUnitAmount];
+            int x = 0;
+            for (Units unit : units)
+            {
+                if ((unit.getUnitType().equals(responseType)) && (unit.getUnitStatus().equals(UnitStatus.IDLE)))
+                {
+                    ElegibleUnits[x] = unit;
+                    x+=1;
+                }
+            }
+
+            Units[] ShortestDistanceUnit = new Units[1];
+
+            int[] incidentCoordinates = incident.getCoordinates();
+            int lowestDistance = 999999;
+
+            for (Units unit : ElegibleUnits)
+            {
+                int[] unitCoordinates = unit.getCoordinates();
+                int distance = Math.abs(incidentCoordinates[0] - unitCoordinates[0]) - Math.abs(incidentCoordinates[1] - unitCoordinates[1]);
+                if (distance < lowestDistance)
+                {
+                    lowestDistance = distance;
+                    ShortestDistanceUnit[0] = unit;
+                }
+                if (distance == lowestDistance)
+                {
+                    if (ShortestDistanceUnit[0].getUnitId() > unit.getUnitId())
+                    {
+                        lowestDistance = distance;
+                        ShortestDistanceUnit[0] = unit;
+                    }
+                    if (ShortestDistanceUnit[0].getUnitId() == unit.getUnitId())
+                    {
+                        if (ShortestDistanceUnit[0].getOwnerId() > unit.getOwnerId())
+                    {
+                        lowestDistance = distance;
+                        ShortestDistanceUnit[0] = unit;
+                    }
+                    }
+                }
+            }
+            incident.setIncidentStatus(IncidentStatus.DISPATCHED);
+            ShortestDistanceUnit[0].setUnitStatus(UnitStatus.EN_ROUTE);
+            ShortestDistanceUnit[0].setIncidentFocus(incident.getIncidentId());
+        }
     }
 
     @Override
