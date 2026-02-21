@@ -72,6 +72,11 @@ public class Incident {
       return ownerUnitId;
     }
 
+    public int getSeverity()
+    {
+        return this.severity;
+    }
+
     private static void incrementNumberOfIncidents()
     {
         numberOfIncidents++;
