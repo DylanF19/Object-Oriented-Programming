@@ -39,6 +39,14 @@ public class Incident {
         return this.type;
     }
 
+    public int[] getCoordinates()
+    {
+        int[] dimensions = new int[1];
+        dimensions[0] = this.coordX;
+        dimensions[1] = this.coordY;
+        return dimensions;
+    }
+
     public void setIncidentStatus(IncidentStatus status)
     {
         this.status = status;
