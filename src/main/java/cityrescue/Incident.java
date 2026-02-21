@@ -81,4 +81,13 @@ public class Incident {
     {
         numberOfIncidents++;
     }
+
+    public void setSeverity(int newSeverity)
+    {
+        this.severity = newSeverity;
+    }
+    public static int getNumberOfIncidents()
+    {
+        return numberOfIncidents;
+    }
 }
