@@ -18,7 +18,7 @@ abstract class Units {
     protected UnitType unitType;
     protected UnitStatus state = UnitStatus.IDLE;
     protected int ownerStationId;
-
+    protected int incidentCountdown = -1;
     private static int numberOfUnits = 0;
     // -1 for no incident
     private int currentIncidentFocus = -1;
@@ -31,6 +31,94 @@ abstract class Units {
         return dimensions;
     }
 
+    public void updateCountdown(Incident incident) 
+    {
+        this.incidentCountdown--;
+        if (this.incidentCountdown == 0) {
+            incident.setOwner(-1);
+            clearIncidentFocus();
+        }
+    }
+
+    public int getIncidentCountdown() 
+    {
+        return this.incidentCountdown;
+    }
+
+    public void setCountdown(IncidentType type)
+    {
+        switch (type) {
+            case MEDICAL:
+                this.incidentCountdown = 2;
+                break;
+            case FIRE:
+                this.incidentCountdown = 4;
+                break;
+            case CRIME:
+                this.incidentCountdown = 3;
+                break;
+            default:
+                break;
+        }
+        
+    }
+
+    public int getManDist(int[] currentLocation, int[] nextLocation)
+    {
+        return (Math.abs(currentLocation[0] - nextLocation[0]) - Math.abs(currentLocation[1] - nextLocation[1]));
+    }
+
+    public void move(int[] destination, CityMap map) 
+    {
+        if (getUnitStatus() != UnitStatus.EN_ROUTE || currentIncidentFocus == -1) {
+            return;
+        }
+        // north then east then south then west
+        int xMod = getCoordinates()[0];
+        int yMod = getCoordinates()[1];
+
+        int[][] nextPosList = {{xMod, yMod+1}, {xMod+1, yMod}, {xMod, yMod-1}, {xMod-1, yMod}};
+
+        int[] chosenMove = {-1, -1};
+
+        for (int i = 0; i < nextPosList.length; i++) {
+            // if found a move that closes the distance more and is valid
+            if (map.isCellClear(nextPosList[i][0], nextPosList[i][1]) && getManDist(getCoordinates(), destination) < getManDist(chosenMove, destination)) {
+
+                chosenMove = nextPosList[i];
+                setCoords(chosenMove[0], chosenMove[1]);
+                break;
+                
+            }
+        }
+
+        if (chosenMove[0] == -1) {
+            for (int i = 0; i < nextPosList.length; i++) {
+            // if found a move that closes the distance more and is valid
+                if (map.isCellClear(nextPosList[i][0], nextPosList[i][1])) {
+
+                    chosenMove = nextPosList[i];
+                    setCoords(chosenMove[0], chosenMove[1]);
+                    break;
+                }
+            }
+        }
+
+        if (chosenMove[0] == -1) { //If false, the unit is likely completely blocked 
+            setCoords(getCoordinates()[0], getCoordinates()[1]);
+        }
+
+        if (getCoordinates() == destination) {
+            setUnitStatus(UnitStatus.AT_SCENE);
+        }
+        
+    }
+
+    public int getIncidentFocus() 
+    {
+        return this.currentIncidentFocus;
+    }
+
     public void setIncidentFocus(int incidentId)
     {
         this.currentIncidentFocus = incidentId;
@@ -39,6 +127,7 @@ abstract class Units {
     public void clearIncidentFocus()
     {
         this.currentIncidentFocus = -1;
+        this.incidentCountdown = -1;
         setUnitStatus(UnitStatus.IDLE);
     }
 

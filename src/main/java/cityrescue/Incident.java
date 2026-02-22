@@ -1,5 +1,7 @@
 package cityrescue;
 
+import java.security.CryptoPrimitive;
+
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
 
@@ -17,8 +19,10 @@ public class Incident {
     private int severity;
     private int coordX;
     private int coordY;
+    private int incidentCountdown;
 
     private static int numberOfIncidents = 0;
+    private static int numberOfReportedIncidents = 0;
 
     private int ownerUnitId;
 
@@ -32,6 +36,21 @@ public class Incident {
 
         incidentId++;
         incrementNumberOfIncidents();
+    }
+
+    public static void incrementReportedCounter()
+    {
+        numberOfReportedIncidents++;
+    }    
+    
+    public static void decrementReportedCounter()
+    {
+        numberOfReportedIncidents--;
+    }
+
+    public static int getNumberOfReportedIncidents() 
+    {
+        return numberOfReportedIncidents;
     }
 
     public IncidentType getIncidentType() 
@@ -86,6 +105,7 @@ public class Incident {
     {
         this.severity = newSeverity;
     }
+
     public static int getNumberOfIncidents()
     {
         return numberOfIncidents;
