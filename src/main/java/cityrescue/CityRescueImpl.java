@@ -19,6 +19,7 @@ public class CityRescueImpl implements CityRescue {
     int maxStationAmount = 20;
     int maxUnitAmount = 50;
     int maxIncidentAmount = 200;
+    int tick = 0;
     // Initialise the map of the city for the constructor
     CityMap cityMap;
 
@@ -562,8 +563,19 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void tick() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        tick+=1
+
+        int[] updateUnitsID = new int[maxUnitAmount]
+        i = 0;
+        for (Unit unit : units)
+        
+            if (unit.getUnitStatus == UnitStatus.EN_ROUTE)
+            {
+                updateUnitsID[i] = unit.getUnitId;
+                i+=1
+            }
+        }
+
     }
 
     @Override
