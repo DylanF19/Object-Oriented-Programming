@@ -1,7 +1,6 @@
 package cityrescue;
 
 import cityrescue.exceptions.CapacityExceededException;
-import cityrescue.exceptions.InvalidUnitException;
 
 /**
  * Class for the Station object
@@ -16,7 +15,7 @@ public class Station
     private String name;
     private int coordX;
     private int coordY;
-    private int parkingCapacity = 2; //This int is abitrary
+    private int parkingCapacity = 15; //This int is abitrary
     
     private int numberOfOwnedUnits = 0;
     private Units[] ownedUnits = new Units[parkingCapacity];
@@ -31,8 +30,9 @@ public class Station
         this.name = name;
         
         // increment ID number
-        this.stationId = numberOfStations;
         numberOfStations++;
+        this.stationId = numberOfStations;
+        
     }
     
     public Units[] getOwnedUnitList() 
@@ -63,22 +63,31 @@ public class Station
         unit.setCoords(this.coordX, this.coordY);
         unit.setOwner(this.stationId);
 
-        boolean found = false;
-        for (int i = 0; i < ownedUnits.length; i++) {
-            if (ownedUnits[i] == null) {
-                ownedUnits[i] = unit;
-                found = true;
+        int emptySpaces = 0;
+        for (Units ownedUnit : ownedUnits) {
+            if (ownedUnit == null || !ownedUnit.toString().isEmpty()) {
+                emptySpaces++;
             }
         }
 
-        if (!found) {
+        if (emptySpaces == 0) {
             throw new CapacityExceededException("Not enough capacity to add another unit");
         }
+
+        for (int i = 0; i < ownedUnits.length; i++) {
+            if (ownedUnits[i] == null || !ownedUnits[i].toString().isEmpty()) {
+                ownedUnits[i] = unit;
+                return;
+            }
+        }
+
+        
+            // TODO: fix impropper exception call
     }
 
     public int[] getCoords()
     {
-        int[] coordinates = new int[1];
+        int[] coordinates = new int[2];
         coordinates[0] = this.coordX;
         coordinates[1] = this.coordY;
         return coordinates;

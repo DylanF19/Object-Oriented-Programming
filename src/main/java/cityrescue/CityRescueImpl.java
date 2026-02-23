@@ -83,7 +83,7 @@ public class CityRescueImpl implements CityRescue {
     {
         // the for loops are getting annoying. we should only need one
         for (Incident incident : incidents) {
-            if (incident.getIncidentId() == incidentId) {
+            if (incident != null && incident.getIncidentId() == incidentId) {
                 return incident;
             }
         }
@@ -102,7 +102,7 @@ public class CityRescueImpl implements CityRescue {
     {
         // the for loops are getting annoying. we should only need one
         for (Station station : stations) {
-            if (station.getStationId() == stationId) {
+            if (station != null && station.getStationId() == stationId) {
                 return station;
             }
         }
@@ -121,9 +121,11 @@ public class CityRescueImpl implements CityRescue {
     {
         // the for loops are getting annoying. we should only need one
         for (Station station : stations) {
+            if (station != null) {
             for (Units unit : station.getOwnedUnitList())
-                if (unit.getUnitId() == unitId) {
+                if (unit != null && unit.getUnitId() == unitId) {
                     return unit;
+                }
             }
         }
 
@@ -339,7 +341,7 @@ public class CityRescueImpl implements CityRescue {
         // make unit
         Units unit = createUnit(type);
         // add unit
-        station.addUnit(unit);
+        station.addUnit(unit); // TODO: this doesn't seem to work. Needs fixing.
         // return unit id
         return unit.getUnitId();
     }
@@ -514,7 +516,7 @@ public class CityRescueImpl implements CityRescue {
         
         for (int i = 0; i < incidents.length; i++) {
             
-            if (incidents[i] != null) {
+            if (incidents[i] == null) {
 
                 Incident tempIncident = new Incident(x, y, type, severity);
                 incidents[i] = tempIncident;
@@ -634,13 +636,15 @@ public class CityRescueImpl implements CityRescue {
         int j = 0;
 
         for (int i = 0; i < incidents.length; i++) {
+            if (incidents[i] != null) {
             IncidentStatus status = incidents[i].getIncidentStatus();
-            if (status == IncidentStatus.REPORTED)
-            { 
-                int tempID = incidents[i].getIncidentId();
-                reportedIncidentList[j] = tempID;
-                reportedIncidents[j] = incidents[i];
-                j+=1;
+                if (status == IncidentStatus.REPORTED)
+                { 
+                    int tempID = incidents[i].getIncidentId();
+                    reportedIncidentList[j] = tempID;
+                    reportedIncidents[j] = incidents[i];
+                    j+=1;
+                }
             }
         }
         Arrays.sort(reportedIncidentList);
@@ -649,81 +653,78 @@ public class CityRescueImpl implements CityRescue {
         {
             for (Incident incident : reportedIncidents)
             {
-                if (incident.getIncidentId() == reportedIncidentList[k])
-                {
-                    orderedReportedIncidents[k] = incident;
-                }
+                    if (incident != null && incident.getIncidentId() == reportedIncidentList[k])
+                    {
+                        orderedReportedIncidents[k] = incident;
+                    }
             }
         }
         for (Incident incident : orderedReportedIncidents)
         {
-            UnitType responseType = UnitType.AMBULANCE;
-            /*
-            We want you to express these differences using inheritance +
-            overriding, not giant if-statements.
-             */
-            if (incident.getIncidentType().equals(IncidentType.MEDICAL))
-            {
-                responseType = UnitType.AMBULANCE;
-            }
-            if (incident.getIncidentType().equals(IncidentType.FIRE))
-            {
-                responseType = UnitType.FIRE_ENGINE;
-            }
-            if (incident.getIncidentType().equals(IncidentType.CRIME))
-            {
-                responseType = UnitType.POLICE_CAR;
-            }
-
-            Units[] elegibleUnits = new Units[maxUnitAmount];
-            int x = 0;
-            for (Units unit : units)
-            {
-                if ((unit.getUnitType().equals(responseType)) && (unit.getUnitStatus().equals(UnitStatus.IDLE)))
+            if (incident != null) {
+                UnitType responseType = UnitType.AMBULANCE;
+                /*
+                We want you to express these differences using inheritance +
+                overriding, not giant if-statements.
+                */
+                if (incident.getIncidentType().equals(IncidentType.MEDICAL))
                 {
-                    elegibleUnits[x] = unit;
-                    x+=1;
+                    responseType = UnitType.AMBULANCE;
                 }
-            }
-
-            Units[] shortestDistanceUnit = new Units[1];
-
-            int[] incidentCoordinates = incident.getCoordinates();
-            int lowestDistance = 999999;
-
-            for (Units unit : elegibleUnits)
-            {
-                int[] unitCoordinates = unit.getCoordinates();
-                int distance = Math.abs(incidentCoordinates[0] - unitCoordinates[0]) - Math.abs(incidentCoordinates[1] - unitCoordinates[1]);
-                if (distance < lowestDistance)
+                if (incident.getIncidentType().equals(IncidentType.FIRE))
                 {
-                    lowestDistance = distance;
-                    shortestDistanceUnit[0] = unit;
+                    responseType = UnitType.FIRE_ENGINE;
                 }
-                if (distance == lowestDistance)
+                if (incident.getIncidentType().equals(IncidentType.CRIME))
                 {
-                    if (shortestDistanceUnit[0].getUnitId() > unit.getUnitId())
+                    responseType = UnitType.POLICE_CAR;
+                }
+            
+                Units[] elegibleUnits = new Units[maxUnitAmount];
+                int x = 0;
+                for (Units unit : units)
+                {
+                    if ((unit != null && unit.getUnitType().equals(responseType)) && (unit.getUnitStatus().equals(UnitStatus.IDLE)))
                     {
-                        lowestDistance = distance;
-                        shortestDistanceUnit[0] = unit;
-                    }
-                    if (shortestDistanceUnit[0].getUnitId() == unit.getUnitId() && shortestDistanceUnit[0].getOwnerId() > unit.getOwnerId())
-                    {
-                        lowestDistance = distance;
-                        shortestDistanceUnit[0] = unit;
+                        elegibleUnits[x] = unit;
+                        x+=1;
                     }
                 }
-            }
-            incident.setIncidentStatus(IncidentStatus.DISPATCHED);
-            shortestDistanceUnit[0].setUnitStatus(UnitStatus.EN_ROUTE);
-            shortestDistanceUnit[0].setIncidentFocus(incident.getIncidentId());
 
-            /*
-            okay, so this code:
-            1. makes a 2 lists of reported incidents(id, incidents)
-            2. adds an incident to that list if it's reported
-            3. then sorts the array of ids
-            */
+                Units[] shortestDistanceUnit = new Units[1];
+
+                int[] incidentCoordinates = incident.getCoordinates();
+                int lowestDistance = 999999;
+
+                for (Units unit : elegibleUnits)
+                {
+                    if (unit != null) {
+                        int[] unitCoordinates = unit.getCoordinates();
+                        int distance = Math.abs(incidentCoordinates[0] - unitCoordinates[0]) - Math.abs(incidentCoordinates[1] - unitCoordinates[1]);
+                        if (distance < lowestDistance)
+                        {
+                            lowestDistance = distance;
+                            shortestDistanceUnit[0] = unit;
+                        }
+                        if (distance == lowestDistance)
+                        {
+                            if (shortestDistanceUnit[0].getUnitId() > unit.getUnitId())
+                            {
+                                lowestDistance = distance;
+                                shortestDistanceUnit[0] = unit;
+                            }
+                            if (shortestDistanceUnit[0].getUnitId() == unit.getUnitId() && shortestDistanceUnit[0].getOwnerId() > unit.getOwnerId())
+                            {
+                                lowestDistance = distance;
+                                shortestDistanceUnit[0] = unit;
+                            }
+                        }
+                    }
+                }
+                incident.setIncidentStatus(IncidentStatus.DISPATCHED);
+                shortestDistanceUnit[0].setUnitStatus(UnitStatus.EN_ROUTE);
+                shortestDistanceUnit[0].setIncidentFocus(incident.getIncidentId());
+            }
         }
     }
 

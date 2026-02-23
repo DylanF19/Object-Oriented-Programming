@@ -50,7 +50,7 @@ public class CityMap
 
     public int[] getSize() 
     {
-        int[] dimensions = new int[1];
+        int[] dimensions = new int[2];
         dimensions[0] = this.width;
         dimensions[1] = this.height;
         return dimensions;

@@ -25,7 +25,7 @@ abstract class Units {
     // method signatures
     public int[] getCoordinates() 
     {
-        int[] dimensions = new int[1];
+        int[] dimensions = new int[2];
         dimensions[0] = this.coordX;
         dimensions[1] = this.coordY;
         return dimensions;

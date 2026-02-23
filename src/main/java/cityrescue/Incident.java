@@ -1,9 +1,6 @@
 package cityrescue;
 
-import java.security.CryptoPrimitive;
-
 import cityrescue.enums.*;
-import cityrescue.exceptions.*;
 
 /**
  * Class for the Incident object
@@ -19,7 +16,6 @@ public class Incident {
     private int severity;
     private int coordX;
     private int coordY;
-    private int incidentCountdown;
 
     private static int numberOfIncidents = 0;
     private static int numberOfReportedIncidents = 0;
@@ -60,7 +56,7 @@ public class Incident {
 
     public int[] getCoordinates()
     {
-        int[] dimensions = new int[1];
+        int[] dimensions = new int[2];
         dimensions[0] = this.coordX;
         dimensions[1] = this.coordY;
         return dimensions;
