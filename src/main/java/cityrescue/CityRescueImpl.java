@@ -73,7 +73,7 @@ public class CityRescueImpl implements CityRescue {
                 notNULLcounter++;
             }
         }
-        
+
         int[] unitIdList = new int[notNULLcounter];
         int index = 0;
         for (Units unit : unitList) {
@@ -163,15 +163,11 @@ public class CityRescueImpl implements CityRescue {
     public Units findUnitFromGivenId(int unitId)
     {
         // the for loops are getting annoying. we should only need one
-        for (Station station : stations) {
-            if (station != null) {
-            for (Units unit : station.getOwnedUnitList())
-                if (unit != null && unit.getUnitId() == unitId) {
-                    return unit;
+        for (Units unit : units) {
+            if (unit != null && unit.getUnitId() == unitId) {
+                return unit;
                 }
             }
-        }
-
         return null;
     }
 
@@ -384,7 +380,15 @@ public class CityRescueImpl implements CityRescue {
         // make unit
         Units unit = createUnit(type);
         // add unit
-        station.addUnit(unit); // TODO: this doesn't seem to work. Needs fixing.
+        station.addUnit(unit);
+
+        for (int i = 0; i < units.length; i++) {
+            if (units[i] == null) {
+                units[i] = unit;
+                break;
+            }
+        }
+
         // return unit id
         return unit.getUnitId();
     }
@@ -508,7 +512,7 @@ public class CityRescueImpl implements CityRescue {
         int y = unit.getCoordinates()[1];
         UnitType type = unit.getUnitType();
         UnitStatus status = unit.getUnitStatus();
-        if (unit.getIncidentFocus() == -1) {
+        if (unit.getIncidentFocus() == null) {
             String incident = "-";
             return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s",
                                 unitId,
@@ -520,7 +524,7 @@ public class CityRescueImpl implements CityRescue {
                                 incident);
 
         } else if (unit.getIncidentCountdown() == -1) {
-            int incident = unit.getIncidentFocus();
+            int incident = unit.getIncidentFocus().getIncidentId();
             return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%d",
                                 unitId,
                                 type,
@@ -532,7 +536,7 @@ public class CityRescueImpl implements CityRescue {
 
         } else {
             int countdown = unit.getIncidentCountdown();
-            int incident = unit.getIncidentFocus();
+            int incident = unit.getIncidentFocus().getIncidentId();
             return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%d WORK=%d",
                                 unitId,
                                 type,
@@ -695,23 +699,38 @@ public class CityRescueImpl implements CityRescue {
         // ===== at this point, params are: =====
         //          int noReportedIncidents; Incident[] reportedIncidents; int[] incidentIdList
         // the lists are in order of Id, I think. I can't really check
-
-        
         for (Incident incident : reportedIncidents) 
         {
-            Units[] eligibleUnits = new Units[maxUnitAmount];
             // null values will need to be dealt with and discounted
-            index = 0;
+            
             // create list of eledgable units
             int noEligibleUnits = 0;
-            for (Units unit : units) 
+            int[] unitIds = createUnitIdList(units);
+
+            Units[] tempUnitList = new Units[maxUnitAmount];
+
+            index = 0;
+
+            for (int unitId : unitIds) 
             {
-                // what have I done. Basically, because the enums are ordered as they are, if the locations of the 
+                Units unit = findUnitFromGivenId(unitId);
+                // Basically, because the enums are ordered as they are, if the locations of the 
                 // types are in the same position, they ace considored compatible. I hope this works.
-                if (unit != null && IncidentType.valueOf(incident.getIncidentType().toString()).ordinal() == UnitType.valueOf(unit.getUnitType().toString()).ordinal() && unit.getIncidentFocus() == -1) {
+                if (IncidentType.valueOf(incident.getIncidentType().toString()).ordinal() == UnitType.valueOf(unit.getUnitType().toString()).ordinal() && unit.getIncidentFocus() == null) {
+                    noEligibleUnits++;
+                    tempUnitList[index] = unit;
+                    index++;
+                }
+            }
+
+            Units[] eligibleUnits = new Units[noEligibleUnits];
+            index = 0;
+            for (Units unit : tempUnitList) 
+            {
+                // making a clean list without null values
+                if (unit != null) {
                     eligibleUnits[index] = unit;
                     index++;
-                    noEligibleUnits++;
                 }
             }
 
@@ -737,6 +756,7 @@ public class CityRescueImpl implements CityRescue {
                     smallestDistance = distance;
                     // otherwise the record will be overwritten and tie counter will be reset
                     sharedSmallestDistances = 0;
+                    sharedSmallestDistances++;
                 }
             }
 
@@ -750,14 +770,16 @@ public class CityRescueImpl implements CityRescue {
                     int[] unitPos = unit.getCoordinates();
                     if (unit.getManDist(unitPos, incidentPos) == smallestDistance) {
                         selectedUnit = unit;
+                        break;
                     }
                 }
             
                 if (selectedUnit != null) {
                     // I made it so that matching an incident to a unit also changet the statuses of boith objects
                     // to EN_ROUTE or DISPATCHED
+
                     incident.setOwner(selectedUnit.getUnitId());
-                    selectedUnit.setIncidentFocus(incident.getIncidentId());
+                    selectedUnit.setIncidentFocus(incident);
                 }
             }
             // there are no availible units if we get here and we move to the next incident.
@@ -776,14 +798,14 @@ public class CityRescueImpl implements CityRescue {
         for (int unit : unitIdList) {
             Units unitObj = findUnitFromGivenId(unit);
             if (unitObj.getUnitStatus() == UnitStatus.EN_ROUTE) {
-                int[] focusCoords = findIncidentFromGivenId(unitObj.getIncidentFocus()).getCoordinates();
+                int[] focusCoords = unitObj.getIncidentFocus().getCoordinates();
                 unitObj.move(focusCoords, cityMap);
             }
 
             // process on scene work
             if (unitObj.getUnitStatus() == UnitStatus.AT_SCENE) {
-                Incident focus = findIncidentFromGivenId(unitObj.getIncidentFocus());
-                unitObj.updateCountdown(focus);
+                unitObj.updateCountdown();
+
             }
         }
         //resolve completed incidents (ascending order)

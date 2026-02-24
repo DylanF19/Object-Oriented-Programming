@@ -1,5 +1,7 @@
 package cityrescue;
 
+import java.util.Arrays;
+
 import cityrescue.enums.*;
 
 /**
@@ -14,15 +16,17 @@ abstract class Units {
     // constant declarations, if any
     protected int coordX;
     protected int coordY;
-    private int unitId = 1; // The ID is tied to each unit and not each type so the incrementer is put here.
+    protected static int unitIdCounter = 0; // The ID is tied to each unit and not each type so the incrementer is put here.
+    protected int unitId;
     protected UnitType unitType;
     protected UnitStatus state = UnitStatus.IDLE;
     protected int ownerStationId;
     protected int incidentCountdown = -1;
     private static int numberOfUnits = 0;
     // -1 for no incident
-    private int currentIncidentFocus = -1;
+    private Incident currentIncidentFocus = null;
     // method signatures
+
     public int[] getCoordinates() 
     {
         int[] dimensions = new int[2];
@@ -31,11 +35,11 @@ abstract class Units {
         return dimensions;
     }
 
-    public void updateCountdown(Incident incident) 
+    public void updateCountdown() 
     {
-        this.incidentCountdown--;
+        this.incidentCountdown -= 1;
         if (this.incidentCountdown == 0) {
-            incident.setOwner(-1);
+            getIncidentFocus().clearOwner();
             clearIncidentFocus();
         }
     }
@@ -49,7 +53,7 @@ abstract class Units {
     {
         switch (type) {
             case MEDICAL:
-                this.incidentCountdown = 2;
+                this.incidentCountdown = 2 ;
                 break;
             case FIRE:
                 this.incidentCountdown = 4;
@@ -70,9 +74,10 @@ abstract class Units {
 
     public void move(int[] destination, CityMap map) 
     {
-        if (getUnitStatus() != UnitStatus.EN_ROUTE || currentIncidentFocus == -1) {
+        if (getUnitStatus() == UnitStatus.OUT_OF_SERVICE || getUnitStatus() == UnitStatus.IDLE || currentIncidentFocus == null) {
             return;
         }
+
         // north then east then south then west
         int xMod = getCoordinates()[0];
         int yMod = getCoordinates()[1];
@@ -108,26 +113,28 @@ abstract class Units {
             setCoords(getCoordinates()[0], getCoordinates()[1]);
         }
 
-        if (getCoordinates() == destination) {
+        if (Arrays.equals(getCoordinates(), destination)) {
             setUnitStatus(UnitStatus.AT_SCENE);
+            getIncidentFocus().setIncidentStatus(IncidentStatus.IN_PROGRESS);
+            setCountdown(getIncidentFocus().getIncidentType());
         }
         
     }
 
-    public int getIncidentFocus() 
+    public Incident getIncidentFocus() 
     {
         return this.currentIncidentFocus;
     }
 
-    public void setIncidentFocus(int incidentId)
+    public void setIncidentFocus(Incident incident)
     {
-        this.currentIncidentFocus = incidentId;
+        this.currentIncidentFocus = incident;
         setUnitStatus(UnitStatus.EN_ROUTE);
     }
 
     public void clearIncidentFocus()
     {
-        this.currentIncidentFocus = -1;
+        this.currentIncidentFocus = null;
         this.incidentCountdown = -1;
         setUnitStatus(UnitStatus.IDLE);
     }
@@ -163,15 +170,15 @@ abstract class Units {
         return this.unitType;
     }
 
-    protected int createNewId() 
+    protected static int createNewId() 
     {
-        unitId += 1;
-        return unitId;
+        unitIdCounter += 1;
+        return unitIdCounter;
     }
 
     public int getUnitId()
     {
-        return this.unitId;
+        return unitId;
     }
 
     public static int getNumberOfUnits()

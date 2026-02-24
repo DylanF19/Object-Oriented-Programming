@@ -10,7 +10,7 @@ import cityrescue.enums.*;
  */
 public class Incident {
     
-    private static int incidentId = 1;
+    private static int incidentId = 0;
     private final IncidentType type;
     private IncidentStatus status;
     private int severity;
@@ -20,7 +20,7 @@ public class Incident {
     private static int numberOfIncidents = 0;
     private static int numberOfReportedIncidents = 0;
 
-    private int ownerUnitId;
+    private int ownerUnitId = -1;
 
     Incident(int x, int y, IncidentType type, int severity)
     {
@@ -81,6 +81,12 @@ public class Incident {
     {
       this.ownerUnitId = ownerId;
       setIncidentStatus(IncidentStatus.DISPATCHED);
+    }
+
+    public void clearOwner()
+    {
+      this.ownerUnitId = -1;
+      setIncidentStatus(IncidentStatus.RESOLVED);
     }
 
     public int getOwnerId()
