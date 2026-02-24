@@ -696,11 +696,8 @@ public class CityRescueImpl implements CityRescue {
                 reportedIncidents[index] = findIncidentFromGivenId(incidentIdList[i]);
             }
         }
-        // ===== at this point, params are: =====
-        //          int noReportedIncidents; Incident[] reportedIncidents; int[] incidentIdList
         // the lists are in order of Id, I think. I can't really check
-        for (Incident incident : reportedIncidents) 
-        {
+        for (Incident incident : reportedIncidents) {
             // null values will need to be dealt with and discounted
             
             // create list of eledgable units
@@ -710,12 +707,10 @@ public class CityRescueImpl implements CityRescue {
             Units[] tempUnitList = new Units[maxUnitAmount];
 
             index = 0;
-
-            for (int unitId : unitIds) 
-            {
+            for (int unitId : unitIds) {
                 Units unit = findUnitFromGivenId(unitId);
                 // Basically, because the enums are ordered as they are, if the locations of the 
-                // types are in the same position, they ace considored compatible. I hope this works.
+                // types are in the same position, they ace considored compatible. This is a very long line.
                 if (IncidentType.valueOf(incident.getIncidentType().toString()).ordinal() == UnitType.valueOf(unit.getUnitType().toString()).ordinal() && unit.getIncidentFocus() == null) {
                     noEligibleUnits++;
                     tempUnitList[index] = unit;
@@ -725,8 +720,7 @@ public class CityRescueImpl implements CityRescue {
 
             Units[] eligibleUnits = new Units[noEligibleUnits];
             index = 0;
-            for (Units unit : tempUnitList) 
-            {
+            for (Units unit : tempUnitList) {
                 // making a clean list without null values
                 if (unit != null) {
                     eligibleUnits[index] = unit;
@@ -734,18 +728,14 @@ public class CityRescueImpl implements CityRescue {
                 }
             }
 
-            // we need to have cases where an incident can't be responded to like this
-            if (noEligibleUnits == 0) {
-                break;
-            }
-
             // from list of units, find closest one
             int[] incidentPos = incident.getCoordinates();
             int smallestDistance = (cityMap.getSize()[0]+1 + cityMap.getSize()[1]+1);
-            
+            // this placeholder is made to be one above the largest possible distance that can
+            // be on the map. It's more efficient and rugged than a simple large number
             int sharedSmallestDistances = 0;
-            for (Units unit : eligibleUnits) 
-            {
+            // if there are no eligible units, the loop never initiates. 
+            for (Units unit : eligibleUnits) {
                 int[] unitPos = unit.getCoordinates();
                 int distance = unit.getManDist(unitPos, incidentPos);
 
@@ -761,25 +751,18 @@ public class CityRescueImpl implements CityRescue {
             }
 
             if (sharedSmallestDistances > 0) {
-                // Will get the first unit that has the smallest distance.mvn
+                // Will get the first unit that has the smallest distance.
                 // The list is in Id order so it should manage the first and
                 // second tie-breaker at once.
-                Units selectedUnit = null;
-                for (Units unit : eligibleUnits) 
-                {
+                for (Units unit : eligibleUnits) {
                     int[] unitPos = unit.getCoordinates();
                     if (unit.getManDist(unitPos, incidentPos) == smallestDistance) {
-                        selectedUnit = unit;
+                    // I made it so that matching an incident to a unit also changed the statuses of both objects
+                    // to EN_ROUTE or DISPATCHED
+                        incident.setOwner(unit.getUnitId());
+                        unit.setIncidentFocus(incident);
                         break;
                     }
-                }
-            
-                if (selectedUnit != null) {
-                    // I made it so that matching an incident to a unit also changet the statuses of boith objects
-                    // to EN_ROUTE or DISPATCHED
-
-                    incident.setOwner(selectedUnit.getUnitId());
-                    selectedUnit.setIncidentFocus(incident);
                 }
             }
             // there are no availible units if we get here and we move to the next incident.
@@ -832,7 +815,6 @@ public class CityRescueImpl implements CityRescue {
         int[] unitIdList = createUnitIdList(units);
         int[] incidentIdList = createIncidentIdList(incidents);
 
-
         /* TICK=(noTicks) \n
          * STATIONS=(noStations) UNITS=(noUnits) INCIDENTS=(noIncidents) OBSTACLES=(noObstacles) \n
          * INCIDENTS \n
@@ -840,7 +822,7 @@ public class CityRescueImpl implements CityRescue {
          * I#(id2) TYPE=(getType) SEV=(getSeverity) LOC(getLocation) STATUS=(getStatus) UNIT=(getOwnerUnitId) \n
          * ...
          * UNITS
-         * U#(id1) TYPE=(getType) HOME=(getOwnerStation) LOC(getLocation) STATUS=(getStatus) INCIDENT(getFocus) WORK=(getIncidentCOuntdown)
+         * U#(id1) TYPE=(getType) HOME=(getOwnerStation) LOC(getLocation) STATUS=(getStatus) INCIDENT(getFocus) WORK=(getIncidentCountdown)
          * U#(id2) TYPE=(getType) HOME=(getOwnerStation) LOC(getLocation) STATUS=(getStatus) INCIDENT(getFocus) WORK=()
          * ...
         */
@@ -873,5 +855,3 @@ public class CityRescueImpl implements CityRescue {
         return baseString;
     }
 }
-
-
