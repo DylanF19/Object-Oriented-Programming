@@ -80,6 +80,7 @@ public class Incident {
     public void setOwner(int ownerId)
     {
       this.ownerUnitId = ownerId;
+      setIncidentStatus(IncidentStatus.DISPATCHED);
     }
 
     public int getOwnerId()

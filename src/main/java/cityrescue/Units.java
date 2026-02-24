@@ -65,7 +65,7 @@ abstract class Units {
 
     public int getManDist(int[] currentLocation, int[] nextLocation)
     {
-        return (Math.abs(currentLocation[0] - nextLocation[0]) - Math.abs(currentLocation[1] - nextLocation[1]));
+        return (Math.abs(currentLocation[0] - nextLocation[0]) + Math.abs(currentLocation[1] - nextLocation[1]));
     }
 
     public void move(int[] destination, CityMap map) 
@@ -122,6 +122,7 @@ abstract class Units {
     public void setIncidentFocus(int incidentId)
     {
         this.currentIncidentFocus = incidentId;
+        setUnitStatus(UnitStatus.EN_ROUTE);
     }
 
     public void clearIncidentFocus()

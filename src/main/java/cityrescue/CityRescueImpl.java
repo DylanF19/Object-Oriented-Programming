@@ -29,10 +29,23 @@ public class CityRescueImpl implements CityRescue {
     Units[] units = new Units[maxUnitAmount];
     Incident[] incidents = new Incident[maxIncidentAmount];
 
-
+    /**
+     * This method returns a sorted list of Incident Ids, cleaned of null values.
+     *
+     * @author (Dylan Foster)
+     * @version (24/02/2026)
+     * @param (Incident[] incidentList)
+     */
     public int[] createIncidentIdList(Incident[] incidentList)
     {
-        int[] incidentIdList = new int[Incident.getNumberOfIncidents()];
+        int notNULLcounter = 0;
+        for (Incident incident : incidents) {
+            if (incident != null) {
+                notNULLcounter++;
+            }
+        }
+
+        int[] incidentIdList = new int[notNULLcounter];
         int index = 0;
         for (Incident incident : incidentList) {
             if (incident != null) {
@@ -44,9 +57,24 @@ public class CityRescueImpl implements CityRescue {
         return incidentIdList;
     }
 
+
+    /**
+     * This method returns a sorted list of Unit Ids, cleaned of null values.
+     *
+     * @author (Dylan Foster)
+     * @version (24/02/2026)
+     * @param (Units[] unitList)
+     */
     public int[] createUnitIdList(Units[] unitList)
     {
-        int[] unitIdList = new int[Units.getNumberOfUnits()];
+        int notNULLcounter = 0;
+        for (Units unit : unitList) {
+            if (unit != null) {
+                notNULLcounter++;
+            }
+        }
+        
+        int[] unitIdList = new int[notNULLcounter];
         int index = 0;
         for (Units unit : unitList) {
             if (unit != null) {
@@ -58,9 +86,24 @@ public class CityRescueImpl implements CityRescue {
         return unitIdList;
     }
 
+
+    /**
+     * This method returns a sorted list of Station Ids, cleaned of null values.
+     *
+     * @author (Dylan Foster)
+     * @version (24/02/2026)
+     * @param (Station[] stationList)
+     */
     public int[] createStationIdList(Station[] stationList)
     {
-        int[] stationIdList = new int[Station.getNumberOfStations()];
+        int notNULLcounter = 0;
+        for (Station station : stationList) {
+            if (station != null) {
+                notNULLcounter++;
+            }
+        }
+
+        int[] stationIdList = new int[notNULLcounter];
         int index = 0;
         for (Station station : stationList) {
             if (station != null) {
@@ -627,105 +670,99 @@ public class CityRescueImpl implements CityRescue {
         //      work up the unit ID list
         //      shortest distance first
         //      lowest unit ID
-        //      lowest ownerStation ID
+        //      ??lowest ownerStation ID?? Aren't unit IDs unique?
+        // ways to find ties:
+        //  get max score and check if two or more share that high score.
+        //      means two passes(one for highscore and another for find others)
+        //      for each tie (if any) repeat for next quality
 
-        int[] reportedIncidentList = new int[maxIncidentAmount];
-        // make reported list
-        Incident[] reportedIncidents = new Incident[maxIncidentAmount];
-
-        int j = 0;
-
-        for (int i = 0; i < incidents.length; i++) {
-            if (incidents[i] != null) {
-            IncidentStatus status = incidents[i].getIncidentStatus();
-                if (status == IncidentStatus.REPORTED)
-                { 
-                    int tempID = incidents[i].getIncidentId();
-                    reportedIncidentList[j] = tempID;
-                    reportedIncidents[j] = incidents[i];
-                    j+=1;
-                }
+        // ===== make reported incident list =====
+        int[] incidentIdList = createIncidentIdList(incidents);
+        int noReportedIncidents = 0;
+        for (int id : incidentIdList) {
+            if (findIncidentFromGivenId(id).getIncidentStatus() == IncidentStatus.REPORTED) {
+                noReportedIncidents++;
             }
         }
-        Arrays.sort(reportedIncidentList);
-        Incident[] orderedReportedIncidents = new Incident[reportedIncidentList.length];
-        for (int k = 0; k < reportedIncidentList.length; k++)
+
+        Incident[] reportedIncidents = new Incident[noReportedIncidents];
+        int index = 0;
+        for (int i = 0; i < noReportedIncidents; i++) {
+            if (findIncidentFromGivenId(incidentIdList[i]).getIncidentStatus() == IncidentStatus.REPORTED) {
+                reportedIncidents[index] = findIncidentFromGivenId(incidentIdList[i]);
+            }
+        }
+        // ===== at this point, params are: =====
+        //          int noReportedIncidents; Incident[] reportedIncidents; int[] incidentIdList
+        // the lists are in order of Id, I think. I can't really check
+
+        
+        for (Incident incident : reportedIncidents) 
         {
-            for (Incident incident : reportedIncidents)
+            Units[] eligibleUnits = new Units[maxUnitAmount];
+            // null values will need to be dealt with and discounted
+            index = 0;
+            // create list of eledgable units
+            int noEligibleUnits = 0;
+            for (Units unit : units) 
             {
-                    if (incident != null && incident.getIncidentId() == reportedIncidentList[k])
-                    {
-                        orderedReportedIncidents[k] = incident;
-                    }
+                // what have I done. Basically, because the enums are ordered as they are, if the locations of the 
+                // types are in the same position, they ace considored compatible. I hope this works.
+                if (unit != null && IncidentType.valueOf(incident.getIncidentType().toString()).ordinal() == UnitType.valueOf(unit.getUnitType().toString()).ordinal() && unit.getIncidentFocus() == -1) {
+                    eligibleUnits[index] = unit;
+                    index++;
+                    noEligibleUnits++;
+                }
             }
-        }
-        for (Incident incident : orderedReportedIncidents)
-        {
-            if (incident != null) {
-                UnitType responseType = UnitType.AMBULANCE;
-                /*
-                We want you to express these differences using inheritance +
-                overriding, not giant if-statements.
-                */
-                if (incident.getIncidentType().equals(IncidentType.MEDICAL))
-                {
-                    responseType = UnitType.AMBULANCE;
+
+            // we need to have cases where an incident can't be responded to like this
+            if (noEligibleUnits == 0) {
+                break;
+            }
+
+            // from list of units, find closest one
+            int[] incidentPos = incident.getCoordinates();
+            int smallestDistance = (cityMap.getSize()[0]+1 + cityMap.getSize()[1]+1);
+            
+            int sharedSmallestDistances = 0;
+            for (Units unit : eligibleUnits) 
+            {
+                int[] unitPos = unit.getCoordinates();
+                int distance = unit.getManDist(unitPos, incidentPos);
+
+                if (distance == smallestDistance) {
+                    // If there is a tie, it will be recorded
+                    sharedSmallestDistances++;
+                } else if (distance < smallestDistance) {
+                    smallestDistance = distance;
+                    // otherwise the record will be overwritten and tie counter will be reset
+                    sharedSmallestDistances = 0;
                 }
-                if (incident.getIncidentType().equals(IncidentType.FIRE))
+            }
+
+            if (sharedSmallestDistances > 0) {
+                // Will get the first unit that has the smallest distance.mvn
+                // The list is in Id order so it should manage the first and
+                // second tie-breaker at once.
+                Units selectedUnit = null;
+                for (Units unit : eligibleUnits) 
                 {
-                    responseType = UnitType.FIRE_ENGINE;
-                }
-                if (incident.getIncidentType().equals(IncidentType.CRIME))
-                {
-                    responseType = UnitType.POLICE_CAR;
+                    int[] unitPos = unit.getCoordinates();
+                    if (unit.getManDist(unitPos, incidentPos) == smallestDistance) {
+                        selectedUnit = unit;
+                    }
                 }
             
-                Units[] elegibleUnits = new Units[maxUnitAmount];
-                int x = 0;
-                for (Units unit : units)
-                {
-                    if ((unit != null && unit.getUnitType().equals(responseType)) && (unit.getUnitStatus().equals(UnitStatus.IDLE)))
-                    {
-                        elegibleUnits[x] = unit;
-                        x+=1;
-                    }
+                if (selectedUnit != null) {
+                    // I made it so that matching an incident to a unit also changet the statuses of boith objects
+                    // to EN_ROUTE or DISPATCHED
+                    incident.setOwner(selectedUnit.getUnitId());
+                    selectedUnit.setIncidentFocus(incident.getIncidentId());
                 }
-
-                Units[] shortestDistanceUnit = new Units[1];
-
-                int[] incidentCoordinates = incident.getCoordinates();
-                int lowestDistance = 999999;
-
-                for (Units unit : elegibleUnits)
-                {
-                    if (unit != null) {
-                        int[] unitCoordinates = unit.getCoordinates();
-                        int distance = Math.abs(incidentCoordinates[0] - unitCoordinates[0]) - Math.abs(incidentCoordinates[1] - unitCoordinates[1]);
-                        if (distance < lowestDistance)
-                        {
-                            lowestDistance = distance;
-                            shortestDistanceUnit[0] = unit;
-                        }
-                        if (distance == lowestDistance)
-                        {
-                            if (shortestDistanceUnit[0].getUnitId() > unit.getUnitId())
-                            {
-                                lowestDistance = distance;
-                                shortestDistanceUnit[0] = unit;
-                            }
-                            if (shortestDistanceUnit[0].getUnitId() == unit.getUnitId() && shortestDistanceUnit[0].getOwnerId() > unit.getOwnerId())
-                            {
-                                lowestDistance = distance;
-                                shortestDistanceUnit[0] = unit;
-                            }
-                        }
-                    }
-                }
-                incident.setIncidentStatus(IncidentStatus.DISPATCHED);
-                shortestDistanceUnit[0].setUnitStatus(UnitStatus.EN_ROUTE);
-                shortestDistanceUnit[0].setIncidentFocus(incident.getIncidentId());
             }
+            // there are no availible units if we get here and we move to the next incident.
         }
+        // UnitIds are unique, why would we need a redundant 3rd step for the station IDs too?
     }
 
     @Override
