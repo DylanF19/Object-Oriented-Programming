@@ -1,5 +1,6 @@
 package cityrescue;
 
+import cityrescue.exceptions.InvalidLocationException;
 
 /**
  * Write a description of class CityMap here.
@@ -56,6 +57,11 @@ public class CityMap
         return dimensions;
     }
     
+    public boolean isInBounds(int x, int y) 
+    {
+        return !(x < 0 || x >= this.getSize()[0] || y < 0 || y >= this.getSize()[1]);
+    }
+
     public boolean isCellClear(int x, int y) 
     {
         return (map[x][y] == 0);

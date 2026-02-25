@@ -32,7 +32,7 @@ public class CityRescueImpl implements CityRescue {
     /**
      * This method returns a sorted list of Incident Ids, cleaned of null values.
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (24/02/2026)
      * @param (Incident[] incidentList)
      */
@@ -61,7 +61,7 @@ public class CityRescueImpl implements CityRescue {
     /**
      * This method returns a sorted list of Unit Ids, cleaned of null values.
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (24/02/2026)
      * @param (Units[] unitList)
      */
@@ -90,7 +90,7 @@ public class CityRescueImpl implements CityRescue {
     /**
      * This method returns a sorted list of Station Ids, cleaned of null values.
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (24/02/2026)
      * @param (Station[] stationList)
      */
@@ -118,7 +118,7 @@ public class CityRescueImpl implements CityRescue {
     /**
      * This is a custom method used to make code more concise, less repetative and more readable
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (18/02/2026)
      * @param (int incidentId)
      */
@@ -131,13 +131,15 @@ public class CityRescueImpl implements CityRescue {
             }
         }
 
+
         return null;
+        
     }
 
     /**
-     * This is a custom method used to make code more concise, less repetative and more readable
+     * This is a custom method used to fetch a Station from its Id
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (18/02/2026)
      * @param (int stationId)
      */
@@ -154,9 +156,9 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     * This is a custom method used to make code more concise, less repetative and more readable
+     * This is a custom method used to fetch a unit from its Id
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (18/02/2026)
      * @param (int unitId)
      */
@@ -172,9 +174,9 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     * This is a custom method used to make code more concise, less repetative and more readable
+     * This is a custom method used to fetch a Station from an owned unit
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (18/02/2026)
      * @param (int unitId)
      */
@@ -184,9 +186,9 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     * This is a custom method used to make code more concise, less repetative and more readable
+     * This is a custom method used to fetch a unit from an incident
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (18/02/2026)
      * @param (int unitId)
      */
@@ -199,7 +201,7 @@ public class CityRescueImpl implements CityRescue {
      * I made this method to seperate the creation of a Unit from it's addition to
      * a station. Makes adding and removing Units less messy
      *
-     * @author (Dylan Foster)
+     * @author (Dylan Foster, Oliver Irving)
      * @version (18/02/2026)
      * @param (int unitId)
      */
@@ -207,12 +209,10 @@ public class CityRescueImpl implements CityRescue {
     {
         if (type == UnitType.AMBULANCE) {
             return new Ambulance();
-
         }
 
         if (type == UnitType.FIRE_ENGINE) {
             return new FireEngine();
-
         }
 
         if (type == UnitType.POLICE_CAR) {
@@ -220,6 +220,35 @@ public class CityRescueImpl implements CityRescue {
         }
 
         return null;
+    }
+
+    /**
+     * I made this make Exception tracebacks more detailed and make sure
+     * that things were going as expected. THis is coupled with a custom traceback
+     * method
+     * 
+     * @author (Dylan Foster, Oliver Irving)
+     * @version (25/02/2026)
+     * @param (int stationId)
+     */
+    public String viewStation(int stationId) throws IDNotRecognisedException {
+        Station station = findStationFromGivenId(stationId);
+
+        if (station == null) {
+            throw new IDNotRecognisedException("No such station exists");
+        }
+
+        int x = station.getCoords()[0];
+        int y = station.getCoords()[1];
+        int parkingSpace = station.getParkingSpace();
+        int ownedUnits = station.getNumberOfOwnedUnits();
+
+        return String.format("St#%d LOC=(%d,%d) PARKING_SPACE=%d OWNED_UNITS=%d %n",
+                                stationId,
+                                x,
+                                y,
+                                parkingSpace,
+                                ownedUnits);
     }
 
     @Override
@@ -315,17 +344,15 @@ public class CityRescueImpl implements CityRescue {
     
         // got through the list, check each id. If found, set to null, else continue
         // if no Id found, raise error
-        boolean found = false;
         for (int i = 0; i < stations.length; i++){
             if (stations[i].getStationId() == stationId) {
                 stations[i] = null;
-                found = true;
+                return;
             }
         }
 
-        if (!found) { // if Id not found
-            throw new IDNotRecognisedException("No such station exists");
-        }
+        // if Id not found
+        throw new IDNotRecognisedException("No such station exists");
         
     }
 
@@ -468,7 +495,6 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getUnitIds() {
-    // This is such a mess
 
         int[] idList = new int[Units.getNumberOfUnits()];
         int j = 0;
@@ -493,8 +519,7 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public String viewUnit(int unitId) throws IDNotRecognisedException {
-        // Info needed:
-        //  id, owner, coordinates, type, state
+
         Units unit = findUnitFromGivenId(unitId);
 
         if (unit == null) {
@@ -512,9 +537,10 @@ public class CityRescueImpl implements CityRescue {
         int y = unit.getCoordinates()[1];
         UnitType type = unit.getUnitType();
         UnitStatus status = unit.getUnitStatus();
+
         if (unit.getIncidentFocus() == null) {
             String incident = "-";
-            return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s",
+            return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%s %n",
                                 unitId,
                                 type,
                                 owner,
@@ -525,7 +551,7 @@ public class CityRescueImpl implements CityRescue {
 
         } else if (unit.getIncidentCountdown() == -1) {
             int incident = unit.getIncidentFocus().getIncidentId();
-            return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%d",
+            return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%d %n",
                                 unitId,
                                 type,
                                 owner,
@@ -537,7 +563,7 @@ public class CityRescueImpl implements CityRescue {
         } else {
             int countdown = unit.getIncidentCountdown();
             int incident = unit.getIncidentFocus().getIncidentId();
-            return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%d WORK=%d",
+            return String.format("U#%d TYPE=%s HOME=%d LOC=(%d,%d) STATUS=%s INCIDENT=%d WORK=%d %n",
                                 unitId,
                                 type,
                                 owner,
@@ -547,7 +573,6 @@ public class CityRescueImpl implements CityRescue {
                                 incident,
                                 countdown);
         }
-
     }
 
     @Override
@@ -653,7 +678,7 @@ public class CityRescueImpl implements CityRescue {
         IncidentStatus status = incident.getIncidentStatus();
         int owner = incident.getOwnerId();
 
-        return String.format("I#%d TYPE=%s SEV=%s LOC=(%d,%d) STATUS=%s UNIT=%d",
+        return String.format("I#%d TYPE=%s SEV=%s LOC=(%d,%d) STATUS=%s UNIT=%d %n",
                                 incidentId,
                                 incidentType,
                                 severity,
@@ -694,12 +719,12 @@ public class CityRescueImpl implements CityRescue {
         for (int i = 0; i < noReportedIncidents; i++) {
             if (findIncidentFromGivenId(incidentIdList[i]).getIncidentStatus() == IncidentStatus.REPORTED) {
                 reportedIncidents[index] = findIncidentFromGivenId(incidentIdList[i]);
+                index++;
             }
         }
         // the lists are in order of Id, I think. I can't really check
         for (Incident incident : reportedIncidents) {
             // null values will need to be dealt with and discounted
-            
             // create list of eledgable units
             int noEligibleUnits = 0;
             int[] unitIds = createUnitIdList(units);
@@ -709,8 +734,9 @@ public class CityRescueImpl implements CityRescue {
             index = 0;
             for (int unitId : unitIds) {
                 Units unit = findUnitFromGivenId(unitId);
+
                 // Basically, because the enums are ordered as they are, if the locations of the 
-                // types are in the same position, they ace considored compatible. This is a very long line.
+                // types are in the same position, they are considored compatible. This is a very long line.
                 if (IncidentType.valueOf(incident.getIncidentType().toString()).ordinal() == UnitType.valueOf(unit.getUnitType().toString()).ordinal() && unit.getIncidentFocus() == null) {
                     noEligibleUnits++;
                     tempUnitList[index] = unit;
@@ -852,6 +878,59 @@ public class CityRescueImpl implements CityRescue {
             }
         }
         
+        return baseString;
+    }
+
+    /*
+     * This is NOT a native method. I'm fucking with the given code by using this
+     * but without this I don't get any info for failed tests
+     */
+    @Override
+    public String fullDetailTraceback() {
+        int noTicks = this.ticks;
+        int noStations = Station.getNumberOfStations();
+        int noUnits = Units.getNumberOfUnits();
+        int noObstacles = cityMap.getNumberOfObstacles();
+        int noIncidents = Incident.getNumberOfIncidents();
+
+        int[] unitIdList = createUnitIdList(units);
+        int[] incidentIdList = createIncidentIdList(incidents);
+        int[] stationIdList = createStationIdList(stations);
+
+        String baseString = String.format("TICK=%d %nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d%n",
+                                        noTicks,
+                                        noStations,
+                                        noUnits,
+                                        noIncidents,
+                                        noObstacles);
+
+        baseString = baseString.concat("STATIONS\n"); 
+
+        for (int station : stationIdList) {
+            try {
+                baseString = baseString.concat(viewStation(station));
+            }
+            catch (IDNotRecognisedException e) {/**/}
+        }
+
+        baseString = baseString.concat("INCIDENTS\n"); 
+
+        for (int incident : incidentIdList) {
+            try {
+                baseString = baseString.concat(viewIncident(incident));
+            }
+            catch (IDNotRecognisedException e) {/**/}
+        }
+
+        baseString = baseString.concat("UNITS\n");
+
+        for (int unit : unitIdList) {
+            try {
+                baseString = baseString.concat(viewUnit(unit));
+            }
+            catch (IDNotRecognisedException e) {/**/}
+        }
+
         return baseString;
     }
 }

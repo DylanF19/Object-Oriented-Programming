@@ -84,32 +84,19 @@ abstract class Units {
 
         int[][] nextPosList = {{xMod, yMod+1}, {xMod+1, yMod}, {xMod, yMod-1}, {xMod-1, yMod}};
 
-        int[] chosenMove = {-1, -1};
+        int[] placeholderMove = {2*map.getSize()[0]+1, 2*map.getSize()[1]+1};
+        int[] chosenMove = placeholderMove;
 
-        for (int i = 0; i < nextPosList.length; i++) {
-            // if found a move that closes the distance more and is valid
-            if (map.isCellClear(nextPosList[i][0], nextPosList[i][1]) && getManDist(getCoordinates(), destination) < getManDist(chosenMove, destination)) {
-
-                chosenMove = nextPosList[i];
-                setCoords(chosenMove[0], chosenMove[1]);
-                break;
-                
+        for (int[] move : nextPosList) {
+            if (map.isInBounds(move[0], move[1]) && map.isCellClear(move[0],move[1]) && (getManDist(move, destination) < getManDist(chosenMove, destination) || chosenMove == placeholderMove)) {
+                chosenMove = move;
             }
         }
 
-        if (chosenMove[0] == -1) {
-            for (int i = 0; i < nextPosList.length; i++) {
-            // if found a move that closes the distance more and is valid
-                if (map.isCellClear(nextPosList[i][0], nextPosList[i][1])) {
-
-                    chosenMove = nextPosList[i];
-                    setCoords(chosenMove[0], chosenMove[1]);
-                    break;
-                }
-            }
-        }
-
-        if (chosenMove[0] == -1) { //If false, the unit is likely completely blocked 
+        if (chosenMove != placeholderMove) {
+            setCoords(chosenMove[0], chosenMove[1]);    
+        } else { 
+            //If false, the unit is likely completely blocked 
             setCoords(getCoordinates()[0], getCoordinates()[1]);
         }
 

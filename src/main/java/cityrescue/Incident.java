@@ -10,7 +10,8 @@ import cityrescue.enums.*;
  */
 public class Incident {
     
-    private static int incidentId = 0;
+    private static int incidentIdCounter = 0;
+    private int incidentId;
     private final IncidentType type;
     private IncidentStatus status;
     private int severity;
@@ -29,8 +30,8 @@ public class Incident {
         this.type = type;
         this.severity = severity;
         this.status = IncidentStatus.REPORTED;
-
-        incidentId++;
+        this.incidentId = incidentIdCounter;
+        incidentIdCounter++;
         incrementNumberOfIncidents();
     }
 

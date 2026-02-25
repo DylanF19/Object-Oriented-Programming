@@ -45,6 +45,7 @@ public class Station
         for (int i = 0; i < ownedUnits.length; i++) {
             if (ownedUnits[i].getUnitId() == unitId) {
                 Units.decrementNumberOfUnits(); 
+                this.numberOfOwnedUnits--;
                 ownedUnits[i] = null;
                 // This is so amaturish and the result of having each station store the 
                 // Unit references. Maybe there's a different method to recording the
@@ -76,13 +77,16 @@ public class Station
 
         for (int i = 0; i < ownedUnits.length; i++) {
             if (ownedUnits[i] == null || !ownedUnits[i].toString().isEmpty()) {
+                this.numberOfOwnedUnits++;
                 ownedUnits[i] = unit;
                 return;
             }
         }
+    }
 
-        
-            // TODO: fix impropper exception call
+    public int getParkingSpace() 
+    {
+        return this.parkingCapacity;
     }
 
     public int[] getCoords()
