@@ -23,7 +23,7 @@ abstract class Units {
     protected int ownerStationId;
     protected int incidentCountdown = -1;
     private static int numberOfUnits = 0;
-    // -1 for no incident
+    // null for no focus now. Changed the id based system to an onject based one
     private Incident currentIncidentFocus = null;
     // method signatures
 

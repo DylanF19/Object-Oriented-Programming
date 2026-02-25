@@ -21,13 +21,28 @@ public class CityRescueImpl implements CityRescue {
     int maxIncidentAmount = 200;
     // Initialise the map of the city for the constructor
 
-    CityMap cityMap;
+    private CityMap cityMap;
+
+    public CityMap getMap() {
+        return this.cityMap;
+    }
+
     int ticks = 0;
 
     // max length arrays || now set in initialize() to reset values every time a map is made
-    Station[] stations;
-    Units[] units;
-    Incident[] incidents;
+    private Station[] stations;
+    private Units[] units;
+    private Incident[] incidents;
+
+    public Station[] getStations() {
+        return this.stations;
+    }
+    public Units[] getUnits() {
+        return this.units;
+    }
+    public Incident[] getIncidents() {
+        return this.incidents;
+    }
 
     /**
      * This method returns a sorted list of Incident Ids, cleaned of null values.
@@ -250,6 +265,15 @@ public class CityRescueImpl implements CityRescue {
                                 parkingSpace,
                                 ownedUnits);
     }
+
+    /* ==================================================================================================
+     *
+     * 
+     *  Method Start
+     * 
+     * 
+     * ==================================================================================================
+    */
 
     @Override
     public void initialise(int width, int height) throws InvalidGridException {
@@ -865,28 +889,32 @@ public class CityRescueImpl implements CityRescue {
          * ...
         */
 
-        String baseString = String.format("TICK=%d %nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d%nINCIDENTS%n",
+        String baseString = String.format("TICK=%d %nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d%n",
                                         noTicks,
                                         noStations,
                                         noUnits,
                                         noIncidents,
                                         noObstacles);
 
+        baseString = baseString.concat("INCIDENTS\n");
+
         for (int incident : incidentIdList) {
             try {
                 baseString = baseString.concat(viewIncident(incident));
             } 
             catch(IDNotRecognisedException e) {
-                // I'm doing this to stop the debugger from bitching
+                // I'm doing this to stop the debugger from moaning
             }
         }
+
+        baseString = baseString.concat("UNITS\n");
 
         for (int unit : unitIdList) {
             try {
                 baseString = baseString.concat(viewUnit(unit));
             } 
             catch(IDNotRecognisedException e) {
-                // I'm doing this to stop the debugger from bitching
+                // I'm doing this to stop the debugger from moaning
             }
         }
         
@@ -894,7 +922,7 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /*
-     * This is NOT a native method. I'm fucking with the given code by using this
+     * This is NOT a native method. I'm messing with the given code by using this
      * but without this I don't get any info for failed tests
      */
     @Override
@@ -944,6 +972,154 @@ public class CityRescueImpl implements CityRescue {
         }
 
         return baseString;
+    }
+
+    String makeCellBody(Units[] objects, int[] location) {
+        String counter;
+        if (cityMap.isCellObstructed(location[0], location[1])) {
+            counter = " ###### ║";
+        } else {
+            counter = " U:";
+            int noObjects = 0;
+            for (Units object : objects) {
+                if (object != null && object.getCoordinates()[0] == location[0] && object.getCoordinates()[1] == location[1]) {
+                    noObjects++;
+                }
+            }
+
+            for (int i = 0; i < 4; i++) {
+                if (noObjects > 0) {
+                    counter = counter.concat("X");
+                    noObjects--;
+                } else {
+                    counter = counter.concat("-");
+                }
+            }
+            counter = counter.concat(" ║");
+            }
+
+        return counter;
+    }
+
+    String makeCellBody(Station[] objects, int[] location) {
+        String counter;
+        if (cityMap.isCellObstructed(location[0], location[1])) {
+            counter = " ###### ║";
+        } else {
+            counter = " S:";
+            int noObjects = 0;
+            for (Station object : objects) {
+                if (object != null && object.getCoords()[0] == location[0] && object.getCoords()[1] == location[1]) {
+                    noObjects++;
+                }
+            }
+
+            for (int i = 0; i < 4; i++) {
+                if (noObjects > 0) {
+                    counter = counter.concat("X");
+                    noObjects--;
+                } else {
+                    counter = counter.concat("-");
+                }
+            }
+            counter = counter.concat(" ║");
+            }
+
+        return counter;
+    }
+
+    String makeCellBody(Incident[] objects, int[] location) {
+        String counter;
+        if (cityMap.isCellObstructed(location[0], location[1])) {
+            counter = " ###### ║";
+        } else {
+            counter = " I:";
+            int noObjects = 0;
+            for (Incident object : objects) {
+                if (object != null && object.getCoordinates()[0] == location[0] && object.getCoordinates()[1] == location[1]) {
+                    noObjects++;
+                }
+            }
+
+            for (int i = 0; i < 4; i++) {
+                if (noObjects > 0) {
+                    counter = counter.concat("X");
+                    noObjects--;
+                } else {
+                    counter = counter.concat("-");
+                }
+            }
+            counter = counter.concat(" ║");
+            }
+
+        return counter;
+    }
+
+    @Override
+    public void visualiseMap() {
+        /*
+         * ╔ ╗ ╚ ╝ ║ ═ ╠ ╣ ╦ ╩ ╬
+         * 
+         * ╔════════╦════════╦
+         * ║ I:---- ║ ###### ║
+         * ║ U:---- ║ ###### ║
+         * ║ S:---- ║ ###### ║
+         * ╠════════╬════════╬
+         * ║ I:---- ║ I:---- ║
+         * ║ U:---- ║ U:---- ║
+         * ║ S:---- ║ S:---- ║
+         * ╚════════╩════════╩
+         * 
+         */
+
+        String top = "╔";
+        String middle = "╠";
+        String bottom = "╚";
+        int index = 0;
+        for (int i = 0; i < getGridSize()[0] - 1; i++) { 
+            top = top.concat(String.format("══ %d ═══╦", i+1));
+            middle = middle.concat("════════╬");
+            bottom = bottom.concat("════════╩");
+            index++;
+        }
+        top = top.concat(String.format("═══ %d ══╗", index+1));
+        middle = middle.concat("════════╣");
+        bottom = bottom.concat("════════╝");
+        // make grid pieces
+
+        String outputString = top + "\n";
+
+        for (int i = 0; i < getGridSize()[1]; i++) {
+            outputString = outputString.concat("║");
+            for (int j = 0; j < getGridSize()[0]; j++) {
+                //Incidents
+                int[] currentLocation = new int[]{i, j};
+                outputString = outputString.concat(makeCellBody(incidents, currentLocation));
+            }
+            outputString = outputString.concat("\n");
+            outputString = outputString.concat(String.format("%d", i+1));
+            for (int j = 0; j < getGridSize()[0]; j++) {
+                //Units
+                int[] currentLocation = new int[]{i, j};
+                outputString = outputString.concat(makeCellBody(units, currentLocation));
+            }
+            outputString = outputString.concat("\n");
+            outputString = outputString.concat("║");
+            for (int j = 0; j < getGridSize()[0]; j++) {
+                //Stations
+                int[] currentLocation = new int[]{i, j};
+                outputString = outputString.concat(makeCellBody(stations, currentLocation));
+            }
+            outputString = outputString.concat("\n");
+            if (i != getGridSize()[1]-1) {
+                outputString = outputString.concat(middle);
+            } else {
+                outputString = outputString.concat(bottom);
+            }
+            outputString = outputString.concat("\n");
+        }
+            
+        System.out.println(outputString);
     }
 }
 // about 1500 lines of code in all btw

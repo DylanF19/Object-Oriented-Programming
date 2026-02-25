@@ -1,13 +1,5 @@
 package cityrescue;
 
-import cityrescue.exceptions.InvalidLocationException;
-
-/**
- * Write a description of class CityMap here.
- *
- * @author (Dylan Foster)
- * @version (08/02/2026)
- */
 public class CityMap
 {
     // instance variables - replace the example below with your own
