@@ -24,10 +24,10 @@ public class CityRescueImpl implements CityRescue {
     CityMap cityMap;
     int ticks = 0;
 
-    // max length arrays
-    Station[] stations = new Station[maxStationAmount];
-    Units[] units = new Units[maxUnitAmount];
-    Incident[] incidents = new Incident[maxIncidentAmount];
+    // max length arrays || now set in initialize() to reset values every time a map is made
+    Station[] stations;
+    Units[] units;
+    Incident[] incidents;
 
     /**
      * This method returns a sorted list of Incident Ids, cleaned of null values.
@@ -262,6 +262,18 @@ public class CityRescueImpl implements CityRescue {
             throw new InvalidGridException("Invalid Size: height has to be greater than 0");
         }
         
+        // Added resets so that id's canstart at one for different instances
+        // and multiple tests in a row.
+        Station.resetStation();
+        Units.resetUnits();
+        Incident.resetIncident();
+
+        ticks = 0;
+        // max length arrays
+        stations = new Station[maxStationAmount];
+        units = new Units[maxUnitAmount];
+        incidents = new Incident[maxIncidentAmount];
+
         cityMap = new CityMap(width, height);
 
     }
@@ -312,10 +324,10 @@ public class CityRescueImpl implements CityRescue {
     }
 
     @Override
-    public int addStation(String name, int x, int y) throws cityrescue.exceptions.InvalidNameException, InvalidLocationException {
-        // There's already a InvalidNameException in Java. I doin't know why I have to do this.
+    public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
+
         if (name.isEmpty()) {
-            throw new cityrescue.exceptions.InvalidNameException("Name of station cannot be empty");
+            throw new InvalidNameException("Name of station cannot be empty");
         }
         
         if (x < 0 || x >= this.cityMap.getSize()[0]) {
@@ -934,3 +946,4 @@ public class CityRescueImpl implements CityRescue {
         return baseString;
     }
 }
+// about 1500 lines of code in all btw

@@ -114,4 +114,11 @@ public class Incident {
     {
         return numberOfIncidents;
     }
+
+    public static void resetIncident()
+    {
+        incidentIdCounter = 0;
+        numberOfIncidents = 0;
+        numberOfReportedIncidents = 0;
+    }
 }

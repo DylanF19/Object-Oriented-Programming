@@ -123,10 +123,9 @@ public class Station
     {
         return this.name;
     }
+
+    public static void resetStation()
+    {
+        numberOfStations = 0;
+    }
 }
-
-
-
-
-
-

@@ -11,6 +11,4 @@ public class PoliceCar extends Units {
         incrementNumberOfUnits();
         this.unitType = UnitType.POLICE_CAR;
     }
-
-
 }

@@ -108,6 +108,12 @@ abstract class Units {
         
     }
 
+    public static void resetUnits()
+    {
+        unitIdCounter = 0;
+        numberOfUnits = 0;
+    }
+
     public Incident getIncidentFocus() 
     {
         return this.currentIncidentFocus;
