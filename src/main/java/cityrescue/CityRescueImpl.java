@@ -713,7 +713,15 @@ public class CityRescueImpl implements CityRescue {
         int y = incident.getCoordinates()[1];
         IncidentStatus status = incident.getIncidentStatus();
         int owner = incident.getOwnerId();
-
+        if (owner == -1) {
+            return String.format("I#%d TYPE=%s SEV=%s LOC=(%d,%d) STATUS=%s UNIT=- %n",
+                                incidentId,
+                                incidentType,
+                                severity,
+                                x,
+                                y,
+                                status);
+        } else {
         return String.format("I#%d TYPE=%s SEV=%s LOC=(%d,%d) STATUS=%s UNIT=%d %n",
                                 incidentId,
                                 incidentType,
@@ -722,6 +730,7 @@ public class CityRescueImpl implements CityRescue {
                                 y,
                                 status,
                                 owner);
+            }
         }
 
     @Override
@@ -989,10 +998,10 @@ public class CityRescueImpl implements CityRescue {
 
             for (int i = 0; i < 4; i++) {
                 if (noObjects > 0) {
-                    counter = counter.concat("X");
+                    counter = counter.concat("-");
                     noObjects--;
                 } else {
-                    counter = counter.concat("-");
+                    counter = counter.concat(" ");
                 }
             }
             counter = counter.concat(" ║");
@@ -1016,10 +1025,10 @@ public class CityRescueImpl implements CityRescue {
 
             for (int i = 0; i < 4; i++) {
                 if (noObjects > 0) {
-                    counter = counter.concat("X");
+                    counter = counter.concat("-");
                     noObjects--;
                 } else {
-                    counter = counter.concat("-");
+                    counter = counter.concat(" ");
                 }
             }
             counter = counter.concat(" ║");
@@ -1046,7 +1055,7 @@ public class CityRescueImpl implements CityRescue {
                     counter = counter.concat("X");
                     noObjects--;
                 } else {
-                    counter = counter.concat("-");
+                    counter = counter.concat(" ");
                 }
             }
             counter = counter.concat(" ║");
@@ -1056,7 +1065,7 @@ public class CityRescueImpl implements CityRescue {
     }
 
     @Override
-    public void visualiseMap() {
+    public String visualiseMap() {
         /*
          * ╔ ╗ ╚ ╝ ║ ═ ╠ ╣ ╦ ╩ ╬
          * 
@@ -1077,12 +1086,12 @@ public class CityRescueImpl implements CityRescue {
         String bottom = "╚";
         int index = 0;
         for (int i = 0; i < getGridSize()[0] - 1; i++) { 
-            top = top.concat(String.format("══ %d ═══╦", i+1));
+            top = top.concat(String.format("══ %d ═══╦", i));
             middle = middle.concat("════════╬");
             bottom = bottom.concat("════════╩");
             index++;
         }
-        top = top.concat(String.format("═══ %d ══╗", index+1));
+        top = top.concat(String.format("══ %d ═══╗", index+1));
         middle = middle.concat("════════╣");
         bottom = bottom.concat("════════╝");
         // make grid pieces
@@ -1093,21 +1102,21 @@ public class CityRescueImpl implements CityRescue {
             outputString = outputString.concat("║");
             for (int j = 0; j < getGridSize()[0]; j++) {
                 //Incidents
-                int[] currentLocation = new int[]{i, j};
+                int[] currentLocation = new int[]{j, i};
                 outputString = outputString.concat(makeCellBody(incidents, currentLocation));
             }
             outputString = outputString.concat("\n");
-            outputString = outputString.concat(String.format("%d", i+1));
+            outputString = outputString.concat(String.format("%d", i));
             for (int j = 0; j < getGridSize()[0]; j++) {
                 //Units
-                int[] currentLocation = new int[]{i, j};
+                int[] currentLocation = new int[]{j, i};
                 outputString = outputString.concat(makeCellBody(units, currentLocation));
             }
             outputString = outputString.concat("\n");
             outputString = outputString.concat("║");
             for (int j = 0; j < getGridSize()[0]; j++) {
                 //Stations
-                int[] currentLocation = new int[]{i, j};
+                int[] currentLocation = new int[]{j, i};
                 outputString = outputString.concat(makeCellBody(stations, currentLocation));
             }
             outputString = outputString.concat("\n");
@@ -1118,8 +1127,7 @@ public class CityRescueImpl implements CityRescue {
             }
             outputString = outputString.concat("\n");
         }
-            
-        System.out.println(outputString);
+        return outputString;
     }
 }
 // about 1500 lines of code in all btw

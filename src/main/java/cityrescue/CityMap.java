@@ -30,9 +30,9 @@ public class CityMap
     public int getNumberOfObstacles() 
     {
         int noObstacles = 0;
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
-                if (map[i][j] == 1) {
+                if (map[j][i] == 1) {
                     noObstacles++;
                 }
             }

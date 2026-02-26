@@ -34,5 +34,5 @@ public interface CityRescue {
 
     //not native. should be removed for submission
     String fullDetailTraceback();
-    void visualiseMap();
+    String visualiseMap();
 }
