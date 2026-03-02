@@ -31,8 +31,5 @@ public interface CityRescue {
     void dispatch();
     void tick();
     String getStatus();
-
-    //not native. should be removed for submission
-    String fullDetailTraceback();
-    String visualiseMap();
 }
+
