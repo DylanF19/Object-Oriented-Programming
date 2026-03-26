@@ -1,0 +1,97 @@
+This is a strong piece of work overall, with only a few areas needing further refinement.
+
+Core correctness
+Marks:11/30
+Feedback: The main idea is in place here, but the results are not yet consistent across the tested cases.
+Pass: initialise stores grid size - The simulation stores the requested grid dimensions correctly.
+Needs attention: initialise resets world state - Reinitialising did not fully reset the simulation state. (NullPointerException: Cannot invoke "cityrescue.Station.getStationId()" because "this.stations[]" is null)
+
+	- ###
+
+Needs attention: station ids start at 1 and remain ascending - Station ids were not assigned or returned in a stable ascending sequence. (NullPointerException: Cannot invoke "cityrescue.Station.getStationId()" because "this.stations[]" is null)
+
+	- did not do null value check for getStationIds()
+
+Needs attention: unit ids and incident ids start at 1 - Either unit ids or incident ids were not starting at 1 as specified. (AssertionFailure: expected 1 but got 0)
+
+	- confusion about methods. getStationIds() and createStationIdList()
+
+Needs attention: station capacity blocks overfill - The implementation allowed a station to exceed its declared capacity. (AssertionFailure: expected IllegalStateException but no exception was thrown)
+
+	- Wrong exception and not even thrown.
+
+Pass: dispatch chooses nearest eligible unit - Distance-based dispatching works in a straightforward scenario.
+Pass: dispatch respects type eligibility - The dispatch code correctly ignores units that cannot handle the incident type.
+Pass: tick moves en-route unit and resolves ambulance in 2 scene ticks - The tick lifecycle broadly matches the specification for a simple ambulance job.
+Needs attention: fire engine uses 4 scene ticks - The fire engine resolution timing did not match the specified four on-scene ticks. (AssertionFailure: should not resolve before the fourth on-scene tick)
+
+	- I can't simulate this without context. Possibly due to assuming that arrival and state changes occur at the same time.
+
+Needs attention: cancel dispatched incident releases unit at current location - Cancelling a dispatched incident did not leave the unit in the required idle-at-current-location state. (IllegalStateException: Cannot remove a unit that's at or en route to an incident)
+
+	- poor use of demorgan's law. !(a or b) was erroneously mader into !a or !b
+
+Needs attention: transfer updates home station and location - Transfer did not update both the home station id and the unit location. (NullPointerException: Cannot invoke "cityrescue.Units.getUnitId()" because "this.ownedUnits[]" is null)
+
+	- fixed along with stations. Same confusion of methods
+
+Needs attention: decommission removes free unit - Decommissioning a free unit did not remove it from the active unit list. (NullPointerException: Cannot invoke "cityrescue.Units.getUnitId()" because "this.ownedUnits[]" is null)
+
+	- same issue here
+
+Needs attention: storage limits are enforced somewhere around 20 stations - A station storage limit was not visible in the tested cases, so the bounded-storage requirement may be missing. (AssertionFailure: expected station capacity limit to trigger before 30)
+
+	- it is indeed missing
+
+
+
+Dispatch, Consistnecy and output
+Marks:16/20
+Feedback: The main idea is in place here, but the results are not yet consistent across the tested cases.
+Pass: dispatch tie-break uses lowest unit id - The unit-id tie break is in place, so equal candidates are resolved consistently.
+Pass: incident processing order follows incident id - Incidents appear to be processed in ascending incident id order, which keeps dispatch deterministic.
+Needs attention: movement preference is N then E then S then W - Movement did not follow the required directional preference when more than one reducing move was available. (AssertionFailure: north should be chosen before east when both reduce distance)
+
+	- Takes the one that shortens the manhattan distance the most and takes the NESW during ties. That was wrong of me to assume.
+	- This seems an erronious markdown
+
+Pass: viewUnit and viewIncident start with stable prefixes - The entity views have stable prefixes, which helps keep the output consistent.
+Pass: getStatus contains required headings and is stable across repeated calls - The overall status output contains the expected headings and stays stable when the state has not changed.
+Pass: output uses expected field labels - The output labels look close to the specification examples, which is useful for both markers and human readers.
+
+
+OO Design
+Marks:12/20
+Feedback: There is a reasonable object-oriented structure here, although some of the abstraction is still mixed.
+CityRescueImpl is present in the expected package, so the main implementation class is exposed correctly.
+A dedicated CityMap class is present, which is a good sign that grid logic has been separated from higher-level simulation control.
+A Station class is present, so station-level state is being modelled explicitly.
+An Incident class is present, which helps keep lifecycle state encapsulated.
+There are at least three concrete Unit subclasses, which matches the modelling requirement well.
+There are repeated references to unit types and switch-style logic. Some of that is normal, but a lot of it usually means the design still relies on manual branching instead of letting subclasses do the work.
+The code appears to use collections in places. That is acceptable and has not been treated as a fault.
+
+
+Validation
+Marks:7/20
+Feedback: Some of the key pieces are in place, though this section still needs more consistency.
+Pass: invalid grid rejected - Grid validation is in place from the very start of the API.
+Needs attention: invalid obstacle coordinates rejected and state unchanged - A failed obstacle operation either used the wrong exception or left the world in a different state. (NullPointerException: Cannot invoke "cityrescue.Station.getOwnedUnitList()" because "" is null)
+
+	- bad getUnitIds() method again
+
+Needs attention: blank station name rejected and state unchanged - A blank station name was not handled with the documented validation rule. (NullPointerException: Cannot invoke "cityrescue.Station.getOwnedUnitList()" because "" is null)
+Needs attention: invalid severity rejected and state unchanged - An invalid severity was accepted or caused a partial update before failing. (NullPointerException: Cannot invoke "cityrescue.Station.getOwnedUnitList()" because "" is null)
+Pass: unknown ids use IDNotRecognisedException - Unknown identifiers are reported using the coursework exception type, which keeps the API predictable.
+Needs attention: capacity cannot shrink below current occupancy - Station capacity changes did not enforce the documented lower bound relative to current units. (AssertionFailure: expected InvalidCapacityException but no exception was thrown)
+Needs attention: cannot remove non-empty station - A non-empty station was removable when it should have been rejected. (AssertionFailure: expected IllegalStateException but no exception was thrown)
+Pass: cannot decommission active unit - Active units are protected against unsafe decommissioning.
+
+
+Documentation
+Marks:10/10
+Feedback: The code is reasonably polished and easy enough to follow.
+There is substantial JavaDoc coverage, which helps with readability.
+The code is mostly decomposed into reasonably small methods, which helps readability.
+Naming is mostly meaningful and domain-driven, which helps.
+The source formatting is broadly consistent and easy to scan.
