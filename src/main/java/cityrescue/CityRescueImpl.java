@@ -362,6 +362,10 @@ public class CityRescueImpl implements CityRescue {
             throw new InvalidLocationException("Trying to place a station out of bounds");
         }
 
+        if (maxStationAmount - Station.getNumberOfStations() <= 0) {
+            throw new CapacityExceededException("Too many stations");
+        }
+
         // Stations can take any type of Unit(Vehicle)
         
         Station tempStation = new Station(name, x, y);
@@ -380,16 +384,22 @@ public class CityRescueImpl implements CityRescue {
     
         // got through the list, check each id. If found, set to null, else continue
         // if no Id found, raise error
+        Station station = findStationFromGivenId(stationId);
+
+        if (station == null) {
+            throw new IDNotRecognisedException("No such station exists");
+        }
+
+        if (station.getNumberOfOwnedUnits() > 0) {
+            throw new IllegalStateException("Station is not empty");
+        }
+
         for (int i = 0; i < stations.length; i++){
             if (stations[i].getStationId() == stationId) {
                 stations[i] = null;
                 return;
             }
         }
-
-        // if Id not found
-        throw new IDNotRecognisedException("No such station exists");
-        
     }
 
     @Override
@@ -397,6 +407,10 @@ public class CityRescueImpl implements CityRescue {
         
         if (maxUnits < 0) {
             throw new InvalidCapacityException("Capacity must not be less than 0");
+        }
+
+        if (maxUnits < getNumberOfOwnedUnits()) {
+            throw new InvalidCapacityException("Cannot be lower than the number of current occupants");
         }
 
         Station station = findStationFromGivenId(stationId);
@@ -410,12 +424,7 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getStationIds() {
-        int[] idList = new int[maxStationAmount];
-        for (int i = 0; i < stations.length; i++) {
-            idList[i] = stations[i].getStationId();
-        }
-        Arrays.sort(idList);
-        return idList;
+        return createStationIdList(stations);
     }
 
     @Override
@@ -436,14 +445,23 @@ public class CityRescueImpl implements CityRescue {
         // get station
         Station station = findStationFromGivenId(stationId);
 
+        if (maxUnitAmount - Units.getNumberOfUnits() <= 0) {
+            throw new CapacityExceededException("Too many units");
+        }
+
         if (station == null) {
             throw new IDNotRecognisedException("No such station exists");
+        }
+
+        if (station.getRemainingCapacity() <= 0) {
+            throw new IllegalStateException("Capacity of station full");
         }
 
         // make unit
         Units unit = createUnit(type);
         // add unit
         station.addUnit(unit);
+
 
         for (int i = 0; i < units.length; i++) {
             if (units[i] == null) {
@@ -531,26 +549,7 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getUnitIds() {
-
-        int[] idList = new int[Units.getNumberOfUnits()];
-        int j = 0;
-
-        for (Station station : stations) {
-
-            Units[] stationUnitList = station.getOwnedUnitList();
-
-            for(int i = 0; i < stationUnitList.length; i++) {
-
-                if (stationUnitList[i] == null) {
-
-                    idList[j] = stationUnitList[i].getUnitId();
-
-                    j++;
-                }
-            }
-        }
-        Arrays.sort(idList);
-        return idList;
+        return createUnitIdList(units);
     }
 
     @Override
@@ -647,8 +646,8 @@ public class CityRescueImpl implements CityRescue {
             throw new IDNotRecognisedException("No such incident exists");
         }
 
-        if (incident.getIncidentStatus() != IncidentStatus.REPORTED || incident.getIncidentStatus() != IncidentStatus.DISPATCHED) {
-            throw new IllegalStateException("Cannot remove a unit that's at or en route to an incident");
+        if (incident.getIncidentStatus() == IncidentStatus.IN_PROGRESS || incident.getIncidentStatus() == IncidentStatus.RESOLVED) {
+            throw new IllegalStateException("Cannot cancel an incident that is in progress or resolved");
         }
 
         incident.setIncidentStatus(IncidentStatus.CANCELLED);
@@ -685,17 +684,7 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getIncidentIds() {
-        // keep naming consistent(camel case)
-        int[] incidentIdList = new int[Incident.getNumberOfIncidents()];
-        int j = 0;
-        for(int i = 0; i < incidents.length; i++) {
-            if (incidents[i] != null) {
-                incidentIdList[j] = incidents[i].getIncidentId();
-                j++;
-            }
-        }
-        Arrays.sort(incidentIdList);
-        return incidentIdList;
+        return createIncidentIdList(incidents);
     }
 
     @Override

@@ -26,11 +26,64 @@ public class PublicTickLifecycleTest {
     }
 
     @Test
-    void addStation_assignsIdStartingAt1() throws Exception {
+    void reinit_grid() throws Exception {
+        int[] sz = cr.getGridSize();
+        assertArrayEquals(new int[]{5,5}, sz);
+        assertTrue(cr.getStatus().contains("TICK=0"));
+
         int id1 = cr.addStation("Central", 1, 1);
         int id2 = cr.addStation("North", 1, 2);
         assertEquals(1, id1);
         assertEquals(2, id2);
+
+        cr.initialise(7, 7);
+        int[] sz2 = cr.getGridSize();
+        int id3 = cr.addStation("Central", 1, 1);
+        int[] idsS = cr.getStationIds();
+        for (int station : idsS) {
+            System.out.print(station);
+        }
+        int[] idsU = cr.getUnitIds();
+        for (int unit : idsU) {
+            System.out.print(unit);
+        }
+        assertArrayEquals(new int[]{7,7}, sz2);
+        assertTrue(cr.getStatus().contains("TICK=0"));
+        
+    }
+
+    @Test
+    void max_cap() throws Exception {
+        int[] sz = cr.getGridSize();
+        assertArrayEquals(new int[]{5,5}, sz);
+        assertTrue(cr.getStatus().contains("TICK=0"));
+
+        int id1 = cr.addStation("Central", 1, 1);
+        cr.setStationCapacity(id1, 2);
+        cr.addUnit(id1, UnitType.AMBULANCE);
+        cr.addUnit(id1, UnitType.AMBULANCE);
+        
+        Exception exception = assertThrows(IllegalStateException.class, () -> {
+            cr.addUnit(id1, UnitType.AMBULANCE);
+        });
+
+    }
+
+    @Test
+    void move_tiebreak() throws Exception {
+        int s = cr.addStation("A", 0, 0);
+
+        int u = cr.addUnit(s, UnitType.FIRE_ENGINE);
+
+        cr.reportIncident(IncidentType.FIRE, 2, 4, 1);
+
+        cr.dispatch();
+
+        assertTrue(cr.viewUnit(u).contains("LOC=(0,0)"));
+
+        cr.tick();
+
+        assertTrue(cr.viewUnit(u).contains("LOC=(0,1)"));
     }
 
     @Test
@@ -91,13 +144,13 @@ public class PublicTickLifecycleTest {
         cr.dispatch();
 
         cr.tick(); // should arrive at (0,1) in one tick
-        assertTrue(cr.viewUnit(u).contains("LOC=(0,1)");
+        assertTrue(cr.viewUnit(u).contains("LOC=(0,1)"));
 
         cr.tick();
         cr.tick();
 
-        assertTrue(cr.viewIncident(i).contains("STATUS=RESOLVED");
-        assertTrue(cr.viewUnit(u).contains("STATUS=IDLE");
+        assertTrue(cr.viewIncident(i).contains("STATUS=RESOLVED"));
+        assertTrue(cr.viewUnit(u).contains("STATUS=IDLE"));
     }
 
     @Test
@@ -121,30 +174,30 @@ public class PublicTickLifecycleTest {
 
         cr.tick(); 
 
-        assertTrue(cr.viewUnit(u2).contains("LOC=(0,1)");
-        assertTrue(cr.viewUnit(u1).contains("LOC=(0,1)");
+        assertTrue(cr.viewUnit(u2).contains("LOC=(0,1)"));
+        assertTrue(cr.viewUnit(u1).contains("LOC=(0,1)"));
 
         cr.tick(); 
 
-        assertTrue(cr.viewUnit(u3).contains("LOC=(2,0)");
-        assertTrue(cr.viewIncident(i3).contains("STATUS=IN_PROGRESS");
+        assertTrue(cr.viewUnit(u3).contains("LOC=(2,0)"));
+        assertTrue(cr.viewIncident(i3).contains("STATUS=IN_PROGRESS"));
 
         cr.tick();
 
-        assertTrue(cr.viewUnit(u2).contains("LOC=(0,3)");
-        assertTrue(cr.viewIncident(i2).contains("STATUS=IN_PROGRESS");
+        assertTrue(cr.viewUnit(u2).contains("LOC=(0,3)"));
+        assertTrue(cr.viewIncident(i2).contains("STATUS=IN_PROGRESS"));
 
         cr.tick();
 
-        assertTrue(cr.viewUnit(u1).contains("LOC=(3,1)");
-        assertTrue(cr.viewIncident(i1).contains("STATUS=IN_PROGRESS");
+        assertTrue(cr.viewUnit(u1).contains("LOC=(3,1)"));
+        assertTrue(cr.viewIncident(i1).contains("STATUS=IN_PROGRESS"));
 
         cr.tick();
         cr.tick();
 
-        assertTrue(cr.viewIncident(i1).contains("STATUS=RESOLVED");
-        assertTrue(cr.viewIncident(i2).contains("STATUS=RESOLVED");
-        assertTrue(cr.viewIncident(i3).contains("STATUS=RESOLVED");
+        assertTrue(cr.viewIncident(i1).contains("STATUS=RESOLVED"));
+        assertTrue(cr.viewIncident(i2).contains("STATUS=RESOLVED"));
+        assertTrue(cr.viewIncident(i3).contains("STATUS=RESOLVED"));
 
         cr.tick();
     }
@@ -164,8 +217,8 @@ public class PublicTickLifecycleTest {
 
         cr.dispatch(); // i1 should now belong to u1
 
-        assertTrue(cr.viewUnit(u1).contains("INCIDENT=0");
-        assertTrue(cr.viewUnit(u2).contains("INCIDENT=-");
+        assertTrue(cr.viewUnit(u1).contains("INCIDENT=0"));
+        assertTrue(cr.viewUnit(u2).contains("INCIDENT=-"));
     }
 
     @Test
@@ -186,11 +239,11 @@ public class PublicTickLifecycleTest {
 
         cr.dispatch();
 
-        assertTrue(cr.viewUnit(u).contains("LOC=(2,2)");
+        assertTrue(cr.viewUnit(u).contains("LOC=(2,2)"));
 
         cr.tick();
 
-        assertTrue(cr.viewUnit(u).contains("LOC=(2,2)");
+        assertTrue(cr.viewUnit(u).contains("LOC=(2,2)"));
     }
 }
 

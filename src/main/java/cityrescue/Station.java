@@ -54,7 +54,7 @@ public class Station
         }
     }
 
-    public void addUnit(Units unit) throws CapacityExceededException
+    public int addUnit(Units unit) 
     // I would love to know an alternative to conditionals
     // I don't think we can call the object from the type directly.
 
@@ -72,16 +72,23 @@ public class Station
         }
 
         if (emptySpaces == 0) {
-            throw new CapacityExceededException("Not enough capacity to add another unit");
+            return 0;
         }
 
         for (int i = 0; i < ownedUnits.length; i++) {
             if (ownedUnits[i] == null || !ownedUnits[i].toString().isEmpty()) {
                 this.numberOfOwnedUnits++;
                 ownedUnits[i] = unit;
-                return;
+                return 1;
             }
         }
+        // found no empty space / Capacity Full
+        return 0;
+    }
+
+    public int getRemainingCapacity()
+    {
+        return this.parkingCapacity - this.numberOfOwnedUnits;
     }
 
     public int getParkingSpace() 
