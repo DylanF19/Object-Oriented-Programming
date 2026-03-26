@@ -81,10 +81,22 @@ Needs attention: invalid obstacle coordinates rejected and state unchanged - A f
 	- bad getUnitIds() method again
 
 Needs attention: blank station name rejected and state unchanged - A blank station name was not handled with the documented validation rule. (NullPointerException: Cannot invoke "cityrescue.Station.getOwnedUnitList()" because "" is null)
+
+	- bad getUnitIds() method again
+
 Needs attention: invalid severity rejected and state unchanged - An invalid severity was accepted or caused a partial update before failing. (NullPointerException: Cannot invoke "cityrescue.Station.getOwnedUnitList()" because "" is null)
+
+	- bad getUnitIds() method again
+
 Pass: unknown ids use IDNotRecognisedException - Unknown identifiers are reported using the coursework exception type, which keeps the API predictable.
 Needs attention: capacity cannot shrink below current occupancy - Station capacity changes did not enforce the documented lower bound relative to current units. (AssertionFailure: expected InvalidCapacityException but no exception was thrown)
+
+	- no check was made.
+
 Needs attention: cannot remove non-empty station - A non-empty station was removable when it should have been rejected. (AssertionFailure: expected IllegalStateException but no exception was thrown)
+
+	- no such check
+
 Pass: cannot decommission active unit - Active units are protected against unsafe decommissioning.
 
 
